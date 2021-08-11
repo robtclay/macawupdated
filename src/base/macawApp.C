@@ -10,6 +10,9 @@ macawApp::validParams()
   InputParameters params = MooseApp::validParams();
 
   // Do not use legacy material output, i.e., output properties on INITIAL as well as TIMESTEP_END
+  params.set<bool>("use_legacy_uo_initialization") = false;
+  params.set<bool>("use_legacy_uo_aux_computation") = false;
+  params.set<bool>("use_legacy_output_syntax") = false;
   params.set<bool>("use_legacy_material_output") = false;
 
   return params;
