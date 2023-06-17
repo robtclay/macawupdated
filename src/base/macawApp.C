@@ -28,7 +28,8 @@ macawApp::~macawApp() {}
 void
 macawApp::registerAll(Factory & f, ActionFactory & af, Syntax & syntax)
 {
-  ModulesApp::registerAll(f, af, syntax);
+  //Vishal ModulesApp::registerAll(f, af, syntax);
+  ModulesApp::registerAllObjects<macawApp>(f, af, syntax);
   Registry::registerObjectsTo(f, {"macawApp"});
   Registry::registerActionsTo(af, {"macawApp"});
 

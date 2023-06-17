@@ -57,15 +57,15 @@
 [Functions]
   [ic_func_eta_f]
     type = ParsedFunction
-    value = '0.5^2*(1.0-tanh(2*(x-x_val)/(int_width)))*(1.0-tanh(2*(y-y_val)/(int_width)))'
-    vars = 'int_width  x_val    y_val'
-    vals = '4644       23220    232200' # int_width = 1 micron (half total)
+    expression = '0.5^2*(1.0-tanh(2*(x-x_val)/(int_width)))*(1.0-tanh(2*(y-y_val)/(int_width)))'
+    symbol_names = 'int_width  x_val    y_val'
+    symbol_values = '4644       23220    232200' # int_width = 1 micron (half total)
   []
   [ic_func_eta_g]
     type = ParsedFunction
-    value = '1 - 0.5^2*(1.0-tanh(2*(x-x_val)/(int_width)))*(1.0-tanh(2*(y-y_val)/(int_width)))'
-    vars = 'int_width  x_val    y_val'
-    vals = '4644       23220    232200' # int_width = 1 micron (half total)
+    expression = '1 - 0.5^2*(1.0-tanh(2*(x-x_val)/(int_width)))*(1.0-tanh(2*(y-y_val)/(int_width)))'
+    symbol_names = 'int_width  x_val    y_val'
+    symbol_values = '4644       23220    232200' # int_width = 1 micron (half total)
   []
 []
 
@@ -161,7 +161,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'w_c w_o w_co eta_g T'
+    coupled_variables = 'w_c w_o w_co eta_g T'
   []
 
   [AC_f_int]
@@ -169,7 +169,7 @@
     variable = eta_f
     kappa_name = kappa
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [eta_f_dot]
@@ -193,7 +193,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'w_c w_o w_co eta_f T'
+    coupled_variables = 'w_c w_o w_co eta_f T'
   []
 
   [AC_g_int]
@@ -201,7 +201,7 @@
     variable = eta_g
     kappa_name = kappa
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [eta_g_dot]
@@ -217,7 +217,7 @@
     type = SusceptibilityTimeDerivative
     variable = w_c
     f_name = chi_c
-    args = 'w_c eta_f eta_g T'
+    coupled_variables = 'w_c eta_f eta_g T'
   []
 
   [diffusion_c]
@@ -233,7 +233,7 @@
     type = SusceptibilityTimeDerivative
     variable = w_o
     f_name = chi_o
-    args = 'w_o eta_f eta_g T'
+    coupled_variables = 'w_o eta_f eta_g T'
   []
 
   [diffusion_o]
@@ -249,7 +249,7 @@
     type = SusceptibilityTimeDerivative
     variable = w_co
     f_name = chi_co
-    args = 'w_co eta_f eta_g T'
+    coupled_variables = 'w_co eta_f eta_g T'
   []
 
   [diffusion_co]
@@ -269,7 +269,7 @@
     v = eta_f
     Fj_names = 'rho_c_f  rho_c_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_o w_co T'
+    coupled_variables = 'eta_f eta_g w_o w_co T'
   []
 
   [coupled_eta_g_dot_c]
@@ -278,7 +278,7 @@
     v = eta_g
     Fj_names = 'rho_c_f  rho_c_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_o w_co T'
+    coupled_variables = 'eta_f eta_g w_o w_co T'
   []
 
   #----------------------------------------------------------------------------#
@@ -289,7 +289,7 @@
     v = eta_f
     Fj_names = 'rho_o_f  rho_o_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_c w_co T'
+    coupled_variables = 'eta_f eta_g w_c w_co T'
   []
 
   [coupled_eta_g_dot_o]
@@ -298,7 +298,7 @@
     v = eta_g
     Fj_names = 'rho_o_f  rho_o_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_c w_co T'
+    coupled_variables = 'eta_f eta_g w_c w_co T'
   []
 
   #----------------------------------------------------------------------------#
@@ -309,7 +309,7 @@
     v = eta_f
     Fj_names = 'rho_co_f rho_co_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_c w_o T'
+    coupled_variables = 'eta_f eta_g w_c w_o T'
   []
 
   [coupled_eta_g_dot_co]
@@ -318,7 +318,7 @@
     v = eta_g
     Fj_names = 'rho_co_f rho_co_g'
     hj_names = 'h_f      h_g'
-    args = 'eta_f eta_g w_c w_o T'
+    coupled_variables = 'eta_f eta_g w_c w_o T'
   []
 [] # End of Kernels
 
@@ -336,20 +336,20 @@
   # Reaction expressions
   [CO_reaction_production]
     type = DerivativeParsedMaterial
-    f_name = production_CO
-    args = 'w_c w_o eta_f eta_g T'
+    property_name = production_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
 
-    function = 'if(rho_c>K_tol&rho_o>K_tol,K_CO*rho_c*rho_o,0)'
+    expression = 'if(rho_c>K_tol&rho_o>K_tol,K_CO*rho_c*rho_o,0)'
 
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
   []
 
   [CO_reaction_consumption]
     type = DerivativeParsedMaterial
-    f_name = reaction_CO
-    args = 'w_c w_o eta_f eta_g T'
+    property_name = reaction_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
 
-    function = 'if(rho_c>K_tol&rho_o>K_tol,-K_CO*rho_c*rho_o,0)'
+    expression= 'if(rho_c>K_tol&rho_o>K_tol,-K_CO*rho_c*rho_o,0)'
 
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
   []
@@ -375,35 +375,35 @@
   # Dilute solution model
   [omega_f]
     type = DerivativeParsedMaterial
-    f_name = omega_f
-    args = 'w_c w_o w_co'
+    property_name = omega_f
+    coupled_variables = 'w_c w_o w_co'
 
-    function = '-w_c/Va -k_b*To/Va * exp(-(w_c+Ef_v)/(k_b*To))
+    expression= '-w_c/Va -k_b*To/Va * exp(-(w_c+Ef_v)/(k_b*To))
                 -k_b*To/Va * exp((w_o-Ef_o_f)/(k_b*To))
                 -k_b*To/Va * exp((w_co-Ef_co_f)/(k_b*To))'
 
-    material_property_names = 'To Ref k_b Va Ef_o_f Ef_co_f Ef_v tol'
+    material_property_names = 'To k_b Va Ef_o_f Ef_co_f Ef_v'
   []
 
   # Gas phase: Parabolic
   [omega_b]
     type = DerivativeParsedMaterial
-    f_name = omega_b
-    args = 'w_c w_o w_co'
+    property_name = omega_b
+    coupled_variables = 'w_c w_o w_co'
 
-    function = '-1/2*w_c^2/(Va^2*A_c_g) -w_c*xeq_c_g/Va
+    expression= '-1/2*w_c^2/(Va^2*A_c_g) -w_c*xeq_c_g/Va
                 -1/2*w_o^2/(Va^2*A_o_g) -w_o*xeq_o_g/Va
                 -1/2*w_co^2/(Va^2*A_co_g) -w_co*xeq_co_g/Va'
 
-    material_property_names = 'Ref Va A_o_g A_c_g A_co_g xeq_o_g xeq_c_g xeq_co_g'
+    material_property_names = 'Va A_o_g A_c_g A_co_g xeq_o_g xeq_c_g xeq_co_g'
   []
 
   [omega]
     type = DerivativeParsedMaterial
-    f_name = omega
-    args = 'w_c w_o w_co eta_f eta_g'
+    property_name = omega
+    coupled_variables = 'w_c w_o w_co eta_f eta_g'
 
-    function = 'h_f*omega_f + h_g*omega_g'
+    expression= 'h_f*omega_f + h_g*omega_g'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) omega_f(w_c,w_o,w_co)
                               omega_g(w_c,w_o,w_co)'
@@ -413,10 +413,10 @@
   # grand potential density interfacial part for visualization purposes
   [omega_inter]
     type = ParsedMaterial
-    f_name = omega_inter
-    args = 'eta_f eta_g'
+    property_name = omega_inter
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'mu * ((eta_f^4)/4 - (eta_f^2)/2 + (eta_g^4)/4 - (eta_g^2)/2
+    expression= 'mu * ((eta_f^4)/4 - (eta_f^2)/2 + (eta_g^4)/4 - (eta_g^2)/2
                 + gamma/2 * (eta_f^2)*(eta_g^2) + gamma/2 * (eta_f^2)*(eta_g^2) + 1/4)'
 
     constant_names = 'gamma'
@@ -429,40 +429,40 @@
   # CARBON
   [rho_c_f]
     type = DerivativeParsedMaterial
-    f_name = rho_c_f
-    args = 'w_c'
+    property_name = rho_c_f
+    coupled_variables = 'w_c'
 
-    function = '1/Va*(1 - exp(-(w_c+Ef_v)/(k_b*To)))' # Dilute Sol
+    expression= '1/Va*(1 - exp(-(w_c+Ef_v)/(k_b*To)))' # Dilute Sol
 
     material_property_names = 'To Va Ef_v k_b'
   []
 
   [rho_c_g]
     type = DerivativeParsedMaterial
-    f_name = rho_c_g
-    args = 'w_c'
+    property_name = rho_c_g
+    coupled_variables = 'w_c'
 
-    function = '1/Va*(w_c/(Va*A_c_g) + xeq_c_g)' # Parabolic
+    expression= '1/Va*(w_c/(Va*A_c_g) + xeq_c_g)' # Parabolic
 
     material_property_names = 'Va A_c_g xeq_c_g'
   []
 
   [rho_c]
     type = DerivativeParsedMaterial
-    f_name = rho_c
-    args = 'w_c eta_f eta_g'
+    property_name = rho_c
+    coupled_variables = 'w_c eta_f eta_g'
 
-    function = 'h_f*rho_c_f + h_g*rho_c_g'
+    expression= 'h_f*rho_c_f + h_g*rho_c_g'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c)'
   []
 
   [x_c]
     type = DerivativeParsedMaterial
-    f_name = x_c
-    args = 'w_c eta_f eta_g'
+    property_name = x_c
+    coupled_variables = 'w_c eta_f eta_g'
 
-    function = 'Va*(h_f*rho_c_f + h_g*rho_c_g)'
+    expression= 'Va*(h_f*rho_c_f + h_g*rho_c_g)'
 
     material_property_names = 'Va h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c)'
 
@@ -474,40 +474,40 @@
   # OXYGEN
   [rho_o_f]
     type = DerivativeParsedMaterial
-    f_name = rho_o_f
-    args = 'w_o'
+    property_name = rho_o_f
+    coupled_variables = 'w_o'
 
-    function = '1/Va * exp((w_o-Ef_o_f)/(k_b*To))' #Dilute Sol
+    expression= '1/Va * exp((w_o-Ef_o_f)/(k_b*To))' #Dilute Sol
 
     material_property_names = 'To Va Ef_o_f k_b'
   []
 
   [rho_o_g]
     type = DerivativeParsedMaterial
-    f_name = rho_o_g
-    args = 'w_o'
+    property_name = rho_o_g
+    coupled_variables = 'w_o'
 
-    function = '1/Va*(w_o/(Va*A_o_g) + xeq_o_g)' #Parabolic
+    expression= '1/Va*(w_o/(Va*A_o_g) + xeq_o_g)' #Parabolic
 
     material_property_names = 'Va A_o_g xeq_o_g'
   []
 
   [rho_o]
     type = DerivativeParsedMaterial
-    f_name = rho_o
-    args = 'w_o eta_f eta_g'
+    property_name = rho_o
+    coupled_variables = 'w_o eta_f eta_g'
 
-    function = 'h_f*rho_o_f + h_g*rho_o_g'
+    expression= 'h_f*rho_o_f + h_g*rho_o_g'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_o_f(w_o) rho_o_g(w_o)'
   []
 
   [x_o]
     type = DerivativeParsedMaterial
-    f_name = x_o
-    args = 'w_o eta_f eta_g'
+    property_name = x_o
+    coupled_variables = 'w_o eta_f eta_g'
 
-    function = 'Va*(h_f*rho_o_f + h_g*rho_o_g)'
+    expression= 'Va*(h_f*rho_o_f + h_g*rho_o_g)'
 
     material_property_names = 'Va h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_o_f(w_o) rho_o_g(w_o)'
 
@@ -519,40 +519,40 @@
   # CARBON MONOXIDE
   [rho_co_f]
     type = DerivativeParsedMaterial
-    f_name = rho_co_f
-    args = 'w_co'
+    property_name = rho_co_f
+    coupled_variables = 'w_co'
 
-    function = '1/Va * exp((w_co-Ef_co_f)/(k_b*To))' #Ideal Sol
+    expression= '1/Va * exp((w_co-Ef_co_f)/(k_b*To))' #Ideal Sol
 
     material_property_names = 'To Va Ef_co_f k_b'
   []
 
   [rho_co_g]
     type = DerivativeParsedMaterial
-    f_name = rho_co_g
-    args = 'w_co'
+    property_name = rho_co_g
+    coupled_variables = 'w_co'
 
-    function = '1/Va*(w_co/(Va*A_co_g) + xeq_co_g)' #Parabolic
+    expression= '1/Va*(w_co/(Va*A_co_g) + xeq_co_g)' #Parabolic
 
     material_property_names = 'Va A_co_g xeq_co_g'
   []
 
   [rho_co]
     type = DerivativeParsedMaterial
-    f_name = rho_co
-    args = 'w_co eta_f eta_g'
+    property_name = rho_co
+    coupled_variables = 'w_co eta_f eta_g'
 
-    function = 'h_f*rho_co_f + h_g*rho_co_g'
+    expression= 'h_f*rho_co_f + h_g*rho_co_g'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_co_f(w_co) rho_co_g(w_co)'
   []
 
   [x_co]
     type = DerivativeParsedMaterial
-    f_name = x_co
-    args = 'w_co eta_f eta_g'
+    property_name = x_co
+    coupled_variables = 'w_co eta_f eta_g'
 
-    function = 'Va*(h_f*rho_co_f + h_g*rho_co_g)'
+    expression= 'Va*(h_f*rho_co_f + h_g*rho_co_g)'
 
     material_property_names = 'Va h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_co_f(w_co) rho_co_g(w_co)'
 
@@ -564,10 +564,10 @@
   # Susceptibilities
   [chi_c]
     type = DerivativeParsedMaterial
-    f_name = chi_c
-    args = 'w_c eta_f eta_g'
+    property_name = chi_c
+    coupled_variables = 'w_c eta_f eta_g'
 
-    function = 'h_f*(1/(Va*k_b*To) * exp(-(w_c+Ef_v)/(k_b*To)))
+    expression= 'h_f*(1/(Va*k_b*To) * exp(-(w_c+Ef_v)/(k_b*To)))
                 +h_g*(1/(Va^2*A_c_g))'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) k_b Ef_v Va A_c_g To'
@@ -575,10 +575,10 @@
 
   [chi_o]
     type = DerivativeParsedMaterial
-    f_name = chi_o
-    args = 'w_o eta_f eta_g'
+    property_name = chi_o
+    coupled_variables = 'w_o eta_f eta_g'
 
-    function = 'h_f*(1/(Va*k_b*To) * exp((w_o-Ef_o_f)/(k_b*To)))
+    expression= 'h_f*(1/(Va*k_b*To) * exp((w_o-Ef_o_f)/(k_b*To)))
                 +h_g*(1/(Va^2*A_o_g))'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) k_b Ef_o_f Va A_o_g To'
@@ -586,10 +586,10 @@
 
   [chi_co]
     type = DerivativeParsedMaterial
-    f_name = chi_co
-    args = 'w_co eta_f eta_g'
+    property_name = chi_co
+    coupled_variables = 'w_co eta_f eta_g'
 
-    function = 'h_f*(1/(Va*k_b*To) * exp((w_co-Ef_co_f)/(k_b*To)))
+    expression= 'h_f*(1/(Va*k_b*To) * exp((w_co-Ef_co_f)/(k_b*To)))
                 +h_g*(1/(Va^2*A_co_g))'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) k_b Ef_co_f Va A_co_g To'
@@ -607,10 +607,10 @@
   # CONSTANT Reaction rate
   [reactivity_CO]
     type = DerivativeParsedMaterial
-    f_name = K_CO
-    args = 'eta_f eta_g T'
+    property_name = K_CO
+    coupled_variables = 'eta_f eta_g T'
 
-    function = 'K_pre/(int_width/2) * exp(-Q/(k_B*T))'
+    expression= 'K_pre/(int_width/2) * exp(-Q/(k_B*T))'
 
     constant_names        = 'K_pre        Q             k_B'
     constant_expressions  = '6.8191e-01   5.3772e-01    8.6173e-5'
@@ -693,30 +693,30 @@
   # Diffusivities
   [diff_c]
     type = DerivativeParsedMaterial
-    f_name = D_c
-    args = 'eta_f eta_g'
+    property_name = D_c
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*1 + h_g*9.3458e+11'
+    expression= 'h_f*1 + h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
 
   [diff_o]
     type = DerivativeParsedMaterial
-    f_name = D_o
-    args = 'eta_f eta_g'
+    property_name = D_o
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*2.8037e+09+ h_g*9.3458e+11'
+    expression= 'h_f*2.8037e+09+ h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
 
   [diff_co]
     type = DerivativeParsedMaterial
-    f_name = D_co
-    args = 'eta_f eta_g'
+    property_name = D_co
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*2.8037e+09+ h_g*9.3458e+11'
+    expression= 'h_f*2.8037e+09+ h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -725,30 +725,30 @@
   # Mobilities
   [mob_c]
     type = DerivativeParsedMaterial
-    f_name = Dchi_c
-    args = 'w_c eta_f eta_g'
+    property_name = Dchi_c
+    coupled_variables = 'w_c eta_f eta_g'
 
-    function = 'D_c*chi_c'
+    expression= 'D_c*chi_c'
 
     material_property_names = 'D_c(eta_f,eta_g) chi_c(w_c,eta_f,eta_g)'
   []
 
   [mob_o]
     type = DerivativeParsedMaterial
-    f_name = Dchi_o
-    args = 'w_o eta_f eta_g'
+    property_name = Dchi_o
+    coupled_variables = 'w_o eta_f eta_g'
 
-    function = 'D_o*chi_o'
+    expression= 'D_o*chi_o'
 
     material_property_names = 'D_o(eta_f,eta_g) chi_o(w_o,eta_f,eta_g)'
   []
 
   [mob_co]
     type = DerivativeParsedMaterial
-    f_name = Dchi_co
-    args = 'w_co eta_f eta_g'
+    property_name = Dchi_co
+    coupled_variables = 'w_co eta_f eta_g'
 
-    function = 'D_co*chi_co'
+    expression= 'D_co*chi_co'
 
     material_property_names = 'D_co(eta_f,eta_g) chi_co(w_co,eta_f,eta_g)'
   []

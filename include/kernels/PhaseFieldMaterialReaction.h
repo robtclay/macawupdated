@@ -16,10 +16,10 @@
 #include "DerivativeMaterialInterface.h"
 
 // Forward Declaration
-class PhaseFieldMaterialReaction;
+//Vishal class PhaseFieldMaterialReaction;
 
-template <>
-InputParameters validParams<PhaseFieldMaterialReaction>();
+//Vishal template <>
+//Vishal InputParameters validParams<PhaseFieldMaterialReaction>();
 
 /**
  * This kernel adds to the residual of the variable u a contribution of
@@ -28,6 +28,8 @@ InputParameters validParams<PhaseFieldMaterialReaction>();
 class PhaseFieldMaterialReaction : public DerivativeMaterialInterface<JvarMapKernelInterface<Kernel>>
 {
 public:
+  static InputParameters validParams();
+  
   PhaseFieldMaterialReaction(const InputParameters & parameters);
   virtual void initialSetup();
 

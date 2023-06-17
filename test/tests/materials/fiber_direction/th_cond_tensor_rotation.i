@@ -45,66 +45,66 @@
   # Calculate average direction in the fiber
   [dir_x_func]
     type = ParsedFunction
-    value = 'dir_x_pp / (int_h_f)'
-    vars = 'dir_x_pp int_h_f'
-    vals = 'dir_x_pp int_h_f'
+    expression = 'dir_x_pp / (int_h_f)'
+    symbol_names = 'dir_x_pp int_h_f'
+    symbol_values = 'dir_x_pp int_h_f'
   []
   [dir_y_func]
     type = ParsedFunction
-    value = 'dir_y_pp / (int_h_f)'
-    vars = 'dir_y_pp int_h_f'
-    vals = 'dir_y_pp int_h_f'
+    expression = 'dir_y_pp / (int_h_f)'
+    symbol_names = 'dir_y_pp int_h_f'
+    symbol_values = 'dir_y_pp int_h_f'
   []
 
   [ave_angle_degree_func]
     type = ParsedFunction
-    value = 'atan(ave_dir_y/ave_dir_x)*180/pi'
-    vars = 'ave_dir_x ave_dir_y'
-    vals = 'ave_dir_x ave_dir_y'
+    expression = 'atan(ave_dir_y/ave_dir_x)*180/pi'
+    symbol_names = 'ave_dir_x ave_dir_y'
+    symbol_values = 'ave_dir_x ave_dir_y'
   []
 
   [ave_angle_rad_func]
     type = ParsedFunction
-    value = 'atan(ave_dir_y/ave_dir_x)'
-    vars = 'ave_dir_x ave_dir_y'
-    vals = 'ave_dir_x ave_dir_y'
+    expression = 'atan(ave_dir_y/ave_dir_x)'
+    symbol_names = 'ave_dir_x ave_dir_y'
+    symbol_values = 'ave_dir_x ave_dir_y'
   []
 
   # TENSOR VERIFICATION
   # Calculate average tensor component in the fiber
   [comp_00_func]
     type = ParsedFunction
-    value = 'comp_00_pp / (int_h_f)'
-    vars = 'comp_00_pp int_h_f'
-    vals = 'comp_00_pp int_h_f'
+    expression = 'comp_00_pp / (int_h_f)'
+    symbol_names = 'comp_00_pp int_h_f'
+    symbol_values = 'comp_00_pp int_h_f'
   []
   [comp_01_func]
     type = ParsedFunction
-    value = 'comp_01_pp / (int_h_f)'
-    vars = 'comp_01_pp int_h_f'
-    vals = 'comp_01_pp int_h_f'
+    expression = 'comp_01_pp / (int_h_f)'
+    symbol_names = 'comp_01_pp int_h_f'
+    symbol_values = 'comp_01_pp int_h_f'
   []
   [comp_10_func]
     type = ParsedFunction
-    value = 'comp_10_pp / (int_h_f)'
-    vars = 'comp_10_pp int_h_f'
-    vals = 'comp_10_pp int_h_f'
+    expression = 'comp_10_pp / (int_h_f)'
+    symbol_names = 'comp_10_pp int_h_f'
+    symbol_values = 'comp_10_pp int_h_f'
   []
   [comp_11_func]
     type = ParsedFunction
-    value = 'comp_11_pp / (int_h_f)'
-    vars = 'comp_11_pp int_h_f'
-    vals = 'comp_11_pp int_h_f'
+    expression = 'comp_11_pp / (int_h_f)'
+    symbol_names = 'comp_11_pp int_h_f'
+    symbol_values = 'comp_11_pp int_h_f'
   []
 
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    value = '(1000-2000)/557280 * x + 2000'
+    expression = '(1000-2000)/557280 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
-    value = '(1000-2000)/557280 * y + 2000'
+    expression = '(1000-2000)/557280 * y + 2000'
   []
 []
 
@@ -350,7 +350,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [AC_f_int]
@@ -358,7 +358,7 @@
     variable = eta_f
     kappa_name = kappa
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [eta_f_dot]
@@ -382,7 +382,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [AC_g_int]
@@ -390,7 +390,7 @@
     variable = eta_g
     kappa_name = kappa
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [eta_g_dot]
@@ -450,14 +450,14 @@
   # Grand potential densities
   [omega_f]
     type = DerivativeParsedMaterial
-    f_name = omega_f
-    function = '1e-5'
+    property_name = omega_f
+    expression = '1e-5'
   []
 
   [omega_g]
     type = DerivativeParsedMaterial
-    f_name = omega_g
-    function = '1e-5'
+    property_name = omega_g
+    expression = '1e-5'
   []
 
   #----------------------------------------------------------------------------#
@@ -488,10 +488,10 @@
   # Conservation check
   [sum_eta]
     type = ParsedMaterial
-    f_name = sum_eta
-    args = 'eta_f eta_g'
+    property_name = sum_eta
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'eta_f + eta_g'
+    expression = 'eta_f + eta_g'
 
     outputs = exodus
     output_properties = sum_eta
@@ -499,10 +499,10 @@
 
   [sum_h]
     type = DerivativeParsedMaterial
-    f_name = sum_h
-    args = 'eta_f eta_g'
+    property_name = sum_h
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f + h_g'
+    expression = 'h_f + h_g'
 
     material_property_names = 'h_f h_g'
 
@@ -513,10 +513,10 @@
   #------------------------------------------------------------------------------#
   [thermal_conductivity]
     type = DerivativeParsedMaterial
-    f_name = thermal_conductivity
-    args = 'eta_f eta_g'
+    property_name = thermal_conductivity
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100 + h_g*1'
+    expression = 'h_f*100 + h_g*1'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
 
@@ -526,10 +526,10 @@
 
   [th_cond_AF]
     type = DerivativeParsedMaterial
-    f_name = th_cond_AF
-    args = 'eta_f eta_g'
+    property_name = th_cond_AF
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100 + h_g*0.0'
+    expression = 'h_f*100 + h_g*0.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
 
@@ -587,7 +587,7 @@
   # Creates a compound tensor for the entire domain
   [thcond_composite]
     type = CompositeMobilityTensor
-    args = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_g'
 
     weights = 'h_f            h_g'
     tensors = 'rot_thcond_f   thcond_g'
@@ -603,27 +603,27 @@
   # Average fiber direction
   [dir_x_mat]
     type = ParsedMaterial
-    f_name = dir_x_mat
-    args = dir_x
-    function = 'h_f * dir_x'
+    property_name = dir_x_mat
+    coupled_variables = dir_x
+    expression = 'h_f * dir_x'
     material_property_names = 'h_f'
     outputs = exodus
   []
   [dir_y_mat]
     type = ParsedMaterial
-    f_name = dir_y_mat
-    args = dir_y
-    function = 'h_f * dir_y'
+    property_name = dir_y_mat
+    coupled_variables = dir_y
+    expression = 'h_f * dir_y'
     material_property_names = 'h_f'
     outputs = exodus
   []
 
   [angle_degree_mat]
     type = ParsedMaterial
-    f_name = angle_mat
-    args = 'dir_x dir_y'
+    property_name = angle_mat
+    coupled_variables = 'dir_x dir_y'
 
-    function = 'h_f * atan(dir_y/dir_x) * 180/ pi'
+    expression = 'h_f * atan(dir_y/dir_x) * 180/ pi'
 
     constant_names = 'pi'
     constant_expressions = '3.14159265358979323846'
@@ -637,36 +637,36 @@
   # Average tensor component 00 in the fiber
   [comp_00_mat]
     type = ParsedMaterial
-    f_name = comp_00_mat
-    args = var_00
-    function = 'h_f * var_00'
+    property_name = comp_00_mat
+    coupled_variables = var_00
+    expression = 'h_f * var_00'
     material_property_names = 'h_f'
     outputs = exodus
   []
 
   [comp_01_mat]
     type = ParsedMaterial
-    f_name = comp_01_mat
-    args = var_01
-    function = 'h_f * var_01'
+    property_name = comp_01_mat
+    coupled_variables = var_01
+    expression = 'h_f * var_01'
     material_property_names = 'h_f'
     outputs = exodus
   []
 
   [comp_10_mat]
     type = ParsedMaterial
-    f_name = comp_10_mat
-    args = var_10
-    function = 'h_f * var_10'
+    property_name = comp_10_mat
+    coupled_variables = var_10
+    expression = 'h_f * var_10'
     material_property_names = 'h_f'
     outputs = exodus
   []
 
   [comp_11_mat]
     type = ParsedMaterial
-    f_name = comp_11_mat
-    args = var_11
-    function = 'h_f * var_11'
+    property_name = comp_11_mat
+    coupled_variables = var_11
+    expression = 'h_f * var_11'
     material_property_names = 'h_f'
     outputs = exodus
   []

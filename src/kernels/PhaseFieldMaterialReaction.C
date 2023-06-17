@@ -11,11 +11,13 @@
 
 registerMooseObject("macawApp", PhaseFieldMaterialReaction);
 
-template <>
+//Vishal template <>
 InputParameters
-validParams<PhaseFieldMaterialReaction>()
+//Vishal validParams<PhaseFieldMaterialReaction>()
+PhaseFieldMaterialReaction::validParams()
 {
-  InputParameters params = validParams<Kernel>();
+  //Vishal InputParameters params = validParams<Kernel>();
+  InputParameters params = Kernel::validParams();
   params.addClassDescription(
       "Transforms a material property into a kernel value (including off-diagonal terms). The material property can take any args, including the variable that this kernel applies to (u).");
   params.addRequiredParam<MaterialPropertyName>("mat_function","The material property name");

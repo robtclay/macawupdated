@@ -11,11 +11,13 @@
 
 registerMooseObject("macawApp", FiberDirectionAF);
 
-template <>
+//Vishal template <>
 InputParameters
-validParams<FiberDirectionAF>()
+//Vishal validParams<FiberDirectionAF>()
+FiberDirectionAF::validParams()
 {
-  InputParameters params = validParams<Material>();
+  //Vishal InputParameters params = validParams<Material>();
+  InputParameters params = Material::validParams();
   params.addClassDescription(
       "Calculate fiber direction based on artifical heat flux approach.");
   params.addRequiredCoupledVar("temp_x",

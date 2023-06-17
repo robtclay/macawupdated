@@ -13,10 +13,10 @@
 #include "DerivativeMaterialInterface.h"
 #include "RankTwoTensor.h"
 
-class FiberDirectionAF;
+//Vishal class FiberDirectionAF;
 
-template <>
-InputParameters validParams<FiberDirectionAF>();
+//Vishal template <>
+//Vishal InputParameters validParams<FiberDirectionAF>();
 
 /**
  * Calculates the direction vector of carbon fibers based on the artificial
@@ -26,6 +26,8 @@ InputParameters validParams<FiberDirectionAF>();
 class FiberDirectionAF : public DerivativeMaterialInterface<Material>
 {
 public:
+  static InputParameters validParams();
+  
   FiberDirectionAF(const InputParameters & parameters);
 
 protected:

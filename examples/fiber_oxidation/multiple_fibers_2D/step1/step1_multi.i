@@ -46,14 +46,14 @@
   # IMAGE READER
   [ic_func_eta_f]
     type = ImageFunction
-    file = multiple_fibers.tif
+    file = Fibers/multi_regular.tif
     threshold = 170
     upper_value = 0.0 # white is zero
     lower_value = 1.0 # black is one
   []
   [ic_func_eta_g]
     type = ImageFunction
-    file = multiple_fibers.tif
+    file = Fibers/multi_regular.tif
     threshold = 170
     upper_value = 1.0 # white is one
     lower_value = 0.0 # black is zero
@@ -62,11 +62,11 @@
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    value = '(1000-2000)/464400 * x + 2000'
+    expression = '(1000-2000)/464400 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
-    value = '(1000-2000)/464400 * y + 2000'
+    expression = '(1000-2000)/464400 * y + 2000'
   []
 []
 
@@ -269,7 +269,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [AC_f_int]
@@ -277,7 +277,7 @@
     variable = eta_f
     kappa_name = kappa
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [eta_f_dot]
@@ -301,7 +301,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [AC_g_int]
@@ -309,7 +309,7 @@
     variable = eta_g
     kappa_name = kappa
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [eta_g_dot]
@@ -370,14 +370,14 @@
   # Grand potential densities
   [omega_f]
     type = DerivativeParsedMaterial
-    f_name = omega_f
-    function = '1e-5'
+    property_name = omega_f
+    expression = '1e-5'
   []
 
   [omega_g]
     type = DerivativeParsedMaterial
-    f_name = omega_g
-    function = '1e-5'
+    property_name = omega_g
+    expression = '1e-5'
   []
 
   #----------------------------------------------------------------------------#
@@ -402,18 +402,18 @@
   # Conservation check
   [sum_eta]
     type = ParsedMaterial
-    f_name = sum_eta
-    args = 'eta_f eta_g'
+    property_name = sum_eta
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'eta_f + eta_g'
+    expression = 'eta_f + eta_g'
   []
 
   [sum_h]
     type = DerivativeParsedMaterial
-    f_name = sum_h
-    args = 'eta_f eta_g'
+    property_name = sum_h
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f + h_g'
+    expression = 'h_f + h_g'
 
     material_property_names = 'h_f h_g'
   []
@@ -421,10 +421,10 @@
   #------------------------------------------------------------------------------#
   [thermal_conductivity]
     type = DerivativeParsedMaterial
-    f_name = thermal_conductivity
-    args = 'eta_f eta_g'
+    property_name = thermal_conductivity
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100.0 + h_g*1.0'
+    expression = 'h_f*100.0 + h_g*1.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
 
@@ -432,10 +432,10 @@
 
   [th_cond_AF]
     type = DerivativeParsedMaterial
-    f_name = th_cond_AF
-    args = 'eta_f eta_g'
+    property_name = th_cond_AF
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100.0 + h_g*0.0'
+    expression = 'h_f*100.0 + h_g*0.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -489,7 +489,7 @@
   # Creates a compound tensor for the entire domain
   [thcond_composite]
     type = CompositeMobilityTensor
-    args = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_g'
 
     weights = 'h_f            h_g'
     tensors = 'rot_thcond_f   thcond_g'
@@ -565,7 +565,7 @@
 
   dtmin = 1e-6
 
-  verbose = true
+  # verbose = true
 
   automatic_scaling = true
   compute_scaling_once = false
@@ -579,13 +579,13 @@
     type = IterationAdaptiveDT
     dt = 1
 
-    growth_factor = 1.2
-    cutback_factor = 0.83333
+    # growth_factor = 1.2
+    # cutback_factor = 0.83333
 
-    optimal_iterations = 4 # Number of nonlinear
-    linear_iteration_ratio = 10 # Ratio of linear to nonlinear
+    optimal_iterations = 6 # Number of nonlinear
+    # linear_iteration_ratio = 10 # Ratio of linear to nonlinear
 
-    iteration_window = 0
+    # iteration_window = 0
   []
 []
 
@@ -655,6 +655,6 @@
 []
 
 #------------------------------------------------------------------------------#
-[Debug]
-  show_var_residual_norms = true
-[]
+# [Debug]
+#   show_var_residual_norms = true
+# []

@@ -44,39 +44,39 @@
   # Calculate average direction in the fiber
   [dir_x_func]
     type = ParsedFunction
-    value = 'dir_x_pp / (int_h_f)'
-    vars = 'dir_x_pp int_h_f'
-    vals = 'dir_x_pp int_h_f'
+    expression = 'dir_x_pp / (int_h_f)'
+    symbol_names = 'dir_x_pp int_h_f'
+    symbol_values = 'dir_x_pp int_h_f'
   []
   [dir_y_func]
     type = ParsedFunction
-    value = 'dir_y_pp / (int_h_f)'
-    vars = 'dir_y_pp int_h_f'
-    vals = 'dir_y_pp int_h_f'
+    expression = 'dir_y_pp / (int_h_f)'
+    symbol_names = 'dir_y_pp int_h_f'
+    symbol_values = 'dir_y_pp int_h_f'
   []
 
   [ave_angle_degree_func]
     type = ParsedFunction
-    value = 'atan(ave_dir_y/ave_dir_x)*180/pi'
-    vars = 'ave_dir_x ave_dir_y'
-    vals = 'ave_dir_x ave_dir_y'
+    expression = 'atan(ave_dir_y/ave_dir_x)*180/pi'
+    symbol_names = 'ave_dir_x ave_dir_y'
+    symbol_values = 'ave_dir_x ave_dir_y'
   []
 
   [ave_angle_rad_func]
     type = ParsedFunction
-    value = 'atan(ave_dir_y/ave_dir_x)'
-    vars = 'ave_dir_x ave_dir_y'
-    vals = 'ave_dir_x ave_dir_y'
+    expression = 'atan(ave_dir_y/ave_dir_x)'
+    symbol_names = 'ave_dir_x ave_dir_y'
+    symbol_values = 'ave_dir_x ave_dir_y'
   []
 
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    value = '(1000-2000)/557280 * x + 2000'
+    expression = '(1000-2000)/557280 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
-    value = '(1000-2000)/557280 * y + 2000'
+    expression = '(1000-2000)/557280 * y + 2000'
   []
 []
 
@@ -207,7 +207,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [AC_f_int]
@@ -215,7 +215,7 @@
     variable = eta_f
     kappa_name = kappa
     mob_name = L
-    args = 'eta_g'
+    coupled_variables = 'eta_g'
   []
 
   [eta_f_dot]
@@ -239,7 +239,7 @@
     Fj_names = 'omega_f omega_g'
     hj_names = 'h_f     h_g'
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [AC_g_int]
@@ -247,7 +247,7 @@
     variable = eta_g
     kappa_name = kappa
     mob_name = L
-    args = 'eta_f'
+    coupled_variables = 'eta_f'
   []
 
   [eta_g_dot]
@@ -331,14 +331,14 @@
   # Grand potential densities
   [omega_f]
     type = DerivativeParsedMaterial
-    f_name = omega_f
-    function = '1e-5'
+    property_name = omega_f
+    expression = '1e-5'
   []
 
   [omega_g]
     type = DerivativeParsedMaterial
-    f_name = omega_g
-    function = '1e-5'
+    property_name = omega_g
+    expression = '1e-5'
   []
 
   #----------------------------------------------------------------------------#
@@ -368,10 +368,10 @@
   #------------------------------------------------------------------------------#
   [thermal_conductivity]
     type = DerivativeParsedMaterial
-    f_name = thermal_conductivity
-    args = 'eta_f eta_g'
+    property_name = thermal_conductivity
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100 + h_g*1'
+    expression = 'h_f*100 + h_g*1'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
 
@@ -381,10 +381,10 @@
 
   [th_cond_AF]
     type = DerivativeParsedMaterial
-    f_name = th_cond_AF
-    args = 'eta_f eta_g'
+    property_name = th_cond_AF
+    coupled_variables = 'eta_f eta_g'
 
-    function = 'h_f*100 + h_g*0.0'
+    expression = 'h_f*100 + h_g*0.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
 
@@ -412,27 +412,27 @@
   # Average fiber direction
   [dir_x_mat]
     type = ParsedMaterial
-    f_name = dir_x_mat
-    args = dir_x
-    function = 'h_f * dir_x'
+    property_name = dir_x_mat
+    coupled_variables = dir_x
+    expression = 'h_f * dir_x'
     material_property_names = 'h_f'
     outputs = exodus
   []
   [dir_y_mat]
     type = ParsedMaterial
-    f_name = dir_y_mat
-    args = dir_y
-    function = 'h_f * dir_y'
+    property_name = dir_y_mat
+    coupled_variables = dir_y
+    expression = 'h_f * dir_y'
     material_property_names = 'h_f'
     outputs = exodus
   []
 
   [angle_degree_mat]
     type = ParsedMaterial
-    f_name = angle_mat
-    args = 'dir_x dir_y'
+    property_name = angle_mat
+    coupled_variables = 'dir_x dir_y'
 
-    function = 'h_f * atan(dir_y/dir_x) * 180/ pi'
+    expression = 'h_f * atan(dir_y/dir_x) * 180/ pi'
 
     constant_names = 'pi'
     constant_expressions = '3.14159265358979323846'

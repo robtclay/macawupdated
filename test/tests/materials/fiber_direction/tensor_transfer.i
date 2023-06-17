@@ -299,7 +299,7 @@
   # Creates a compound tensor for the entire domain
   [thcond_composite]
     type = CompositeMobilityTensor
-    args = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_g'
 
     weights = 'h_f       h_g'
     tensors = 'thcond_a  thcond_b'
