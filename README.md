@@ -18,8 +18,7 @@ There are tests and example input files that can be used as a starting point. Fo
 
 Citing Macaw
 ------------
-coming soon
-
+1. Sessim, Marina, et al. "Phase-field modeling of carbon fiber oxidation coupled with heat conduction." Computational Materials Science 204 (2022): 111156.
 Contact us
 ----------
 Feel free to contact us if you have any questions.
