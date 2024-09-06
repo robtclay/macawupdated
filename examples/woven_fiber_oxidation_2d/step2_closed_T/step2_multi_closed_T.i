@@ -34,7 +34,7 @@
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = 'FiberOxOB_2D_ebsd.txt'
+    filename = ../structure/FiberOxOB_2D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
     uniform_refine = 0

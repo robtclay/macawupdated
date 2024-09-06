@@ -34,7 +34,7 @@
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = 'FiberOxOB_2D_ebsd.txt'
+    filename = ../structure/FiberOxOB_2D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
     uniform_refine = 0
@@ -203,11 +203,11 @@
     value = 0
   []
 
-  [./IC_T]
+  [IC_T]
     type = FunctionIC
     variable = T
     function = ic_func_T
-  [../]
+  []
 
   [IC_00]
     type = FunctionIC
@@ -663,6 +663,14 @@
   #   density = density
   #   specific_heat = specific_heat
   # []
+  [Heat_Time_Derivative]
+    type = SpecificHeatConductionTimeDerivative
+    variable = T
+    coupled_variables = 'eta_f eta_g'
+
+    density = density
+    specific_heat = specific_heat
+  []
 []
 #----------------------------------------------------------------------------#
 # END OF KERNELS
@@ -1208,7 +1216,30 @@
 
     M_name = thcond_aniso
   []
+  #----------------------------------------------------------------------------#
+  # Specific heat
+  [cp]
+    type = DerivativeParsedMaterial
+    property_name = specific_heat
+    coupled_variables = 'eta_f eta_g'
 
+    expression = 'h_f * (4.0010e+09) + h_g * (1.9941e+09)'
+
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
+  []
+
+  #----------------------------------------------------------------------------#
+  # Density
+  [density]
+    type = DerivativeParsedMaterial
+    property_name = density
+    coupled_variables = 'eta_f eta_g'
+
+    expression = 'h_f * (1.9944e-14) + h_g * (1.2963e-18)'
+
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
+  []
+  
   #------------------------------------------------------------------------------#
   # Conservation check
   [sum_eta]

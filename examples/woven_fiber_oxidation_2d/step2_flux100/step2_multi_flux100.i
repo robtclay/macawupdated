@@ -11,30 +11,12 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   [gen]
-#     type = GeneratedMeshGenerator
-#     dim = 2
-
-#     xmin = 0
-#     xmax = 557280 # 120 microns
-#     nx = 120
-
-#     ymin = 0
-#     ymax = 557280 # 120 microns
-#     ny = 120
-
-#     elem_type = QUAD4
-#   []
-
-#   uniform_refine = 2
-# []
 
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = 'FiberOxOB_2D_ebsd.txt'
+    filename = ../structure/FiberOxOB_2D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
     uniform_refine = 0
