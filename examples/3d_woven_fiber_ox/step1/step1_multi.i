@@ -43,6 +43,10 @@
     type = ParsedFunction
     expression = '(1000-2000)/464400 * y + 2000'
   []
+  [ic_func_Tz]
+    type = ParsedFunction
+    expression = '(1000-2000)/464400 * z + 2000'
+  []
 []
 
 [UserObjects]
@@ -78,6 +82,11 @@
     variable = T_y
     function = ic_func_Ty
   []
+  [ic_func_Tz]
+    type = FunctionIC
+    variable = T_z
+    function = ic_func_Tz
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -93,6 +102,8 @@
   [T_x]
   []
   [T_y]
+  []
+  [T_z]
   []
 []
 
@@ -317,6 +328,11 @@
     variable = T_y
     diffusion_coefficient = thermal_conductivity
   []
+  [Heat_Conduction_Tz]
+    type = HeatConduction
+    variable = T_z
+    diffusion_coefficient = thermal_conductivity
+  []
 []
 
 #----------------------------------------------------------------------------#
@@ -440,6 +456,7 @@
     type = FiberDirectionAF
     temp_x = T_x
     temp_y = T_y
+    temp_z = T_z
 
     thermal_conductivity = th_cond_AF
     vector_name = fiber_direction_AF
@@ -521,6 +538,19 @@
     boundary = 'top'
     value = 1000
   []
+
+  [Tz_front]
+    type = DirichletBC
+    variable = T_z
+    boundary = 'front'
+    value = 1000
+  []
+  [Tz_back]
+    type = DirichletBC
+    variable = T_z
+    boundary = 'back'
+    value = 2000
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -553,7 +583,7 @@
   nl_rel_tol = 1.0e-8
 
   l_max_its = 30
-  l_tol = 1.0e-8
+  l_tol = 1.0e-6
 
   start_time = 0.0
   end_time = 200

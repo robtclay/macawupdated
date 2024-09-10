@@ -40,7 +40,7 @@
 
   [detect_fiber]
     type = Terminator
-    expression = 'int_h_f < 1e6'
+    expression = 'int_h_f < 1e9'
   []
   [ebsd]
     # Read in the EBSD data. Uses the filename given in the mesh block.
@@ -1274,7 +1274,7 @@
   type = Transient
 
   nl_max_its = 12
-  nl_rel_tol = 1.0e-8
+  nl_rel_tol = 1.0e-6
 
   nl_abs_tol = 1e-10
 
@@ -1291,7 +1291,7 @@
   automatic_scaling = true
   compute_scaling_once = false
 
-  line_search = default
+  line_search = basic
   line_search_package = petsc
 
   scheme = bdf2
