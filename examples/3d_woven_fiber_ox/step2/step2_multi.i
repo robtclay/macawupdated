@@ -291,33 +291,33 @@
 [Kernels]
   # Chemical reaction
   [reaction_kernel_C]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_c
-    mat_function = reaction_CO
-    args = 'w_o eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_o eta_f eta_g T'
   []
 
   [reaction_kernel_O]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_o
-    mat_function = reaction_CO
-    args = 'w_c eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_c eta_f eta_g T'
   []
 
   [reaction_kernel_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_co
-    mat_function = production_CO
-    args = 'w_c w_o eta_f eta_g T'
+    mask = production_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
   []
 
-  # #----------------------------------------------------------------------------#
+  #----------------------------------------------------------------------------#
   # Endothermic Reaction
   [reaction_energy_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = T
-    mat_function = energy_CO
-    args = 'w_c w_o eta_f eta_g'
+    mask = energy_CO
+    coupled_variables = 'w_c w_o eta_f eta_g'
   []
 
   #----------------------------------------------------------------------------#
@@ -1174,12 +1174,41 @@
 [Preconditioning]
   active = 'hypre'
 
+  [jacobite]
+    type = FDP
+    full = true
+  []
+
+  [lu]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
+    petsc_options_value = 'lu        superlu_dist'
+  []
+
+  [asm]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type -ksp_grmres_restart -sub_ksp_type -sub_pc_type  -pc_asm_overlap'
+    petsc_options_value = 'asm      31                  preonly       lu            2'
+  []
+
   [hypre]
     type = SMP
     full = true
     solve_type = NEWTON
-    petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart -pc_hypre_boomeramg_strong_threshold'
+    petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart  -pc_hypre_boomeramg_strong_threshold'
     petsc_options_value = 'hypre     boomeramg       31                  0.7'
+  []
+
+  [bjacobi]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type  -ksp_type  -ksp_gmres_restart -sub_pc_type -sub_ksp_type'
+    petsc_options_value = 'bjacobi   gmres      31                 lu           preonly'
   []
 []
 
@@ -1320,13 +1349,13 @@
 #        ####    ####     #
 #------------------------------------------------------------------------------#
 [VectorPostprocessors]
-  [grain_volumes]
-    type = FeatureVolumeVectorPostprocessor
-    flood_counter = grain_tracker
-    single_feature_per_element = true
-    execute_on = 'INITIAL TIMESTEP_END FINAL'
-    outputs = none
-  []
+  # [grain_volumes]
+  #   type = FeatureVolumeVectorPostprocessor
+  #   flood_counter = grain_tracker
+  #   single_feature_per_element = true
+  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
+  #   outputs = none
+  # []
 
   [feature_volumes]
     type = FeatureVolumeVectorPostprocessor
@@ -1547,6 +1576,11 @@
 #------------------------------------------------------------------------------#
 [Outputs]
   file_base = ./results/step2_multi_out
+  [check]
+    type = Checkpoint
+    num_files = 4
+    use_displaced = True
+  []
 
   [console]
     type = Console

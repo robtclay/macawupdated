@@ -464,6 +464,38 @@
     mask = energy_CO
     coupled_variables = 'w_c w_o eta_f eta_g'
   []
+  
+  
+  # # Chemical reaction
+  # [reaction_kernel_C]
+  #   type = PhaseFieldMaterialReaction
+  #   variable = w_c
+  #   mat_function = reaction_CO
+  #   args = 'w_c w_o eta_f eta_g T'
+  # []
+
+  # [reaction_kernel_O]
+  #   type = PhaseFieldMaterialReaction
+  #   variable = w_o
+  #   mat_function = reaction_CO
+  #   args = 'w_c w_o eta_f eta_g T'
+  # []
+
+  # [reaction_kernel_CO]
+  #   type = PhaseFieldMaterialReaction
+  #   variable = w_co
+  #   mat_function = production_CO
+  #   args = 'w_co w_c w_o eta_f eta_g T'
+  # []
+
+  # #----------------------------------------------------------------------------#
+  # Endothermic Reaction
+  # [reaction_energy_CO]
+  #   type = PhaseFieldMaterialReaction
+  #   variable = T
+  #   mat_function = energy_CO
+  #   args = 'w_c w_o eta_f eta_g'
+  # []
 
   #----------------------------------------------------------------------------#
   # eta_f kernels
@@ -691,9 +723,9 @@
     property_name = production_CO
     coupled_variables = 'w_c w_o eta_f eta_g T'
 
-    expression= 'if(rho_c>K_tol&rho_o>K_tol,K_CO*rho_c*rho_o,0)'
+    expression= 'K_CO*rho_c*rho_o'
 
-    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g)'
   []
 
   [CO_reaction_consumption]
@@ -701,9 +733,9 @@
     property_name = reaction_CO
     coupled_variables = 'w_c w_o eta_f eta_g T'
 
-    expression= 'if(rho_c>K_tol&rho_o>K_tol,-K_CO*rho_c*rho_o,0)'
+    expression= '-K_CO*rho_c*rho_o'
 
-    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g)'
   []
 
   #----------------------------------------------------------------------------#
@@ -713,13 +745,13 @@
     property_name = energy_CO
     coupled_variables = 'w_c w_o eta_f eta_g T'
 
-    expression= 'if(rho_c>K_tol&rho_o>K_tol,-dH*K_CO*rho_c*rho_o,0)'
+    expression= '-dH*K_CO*rho_c*rho_o'
 
     constant_names = 'dH'
 
     constant_expressions = '2.6575e-01' # = 100 kJ/mol
 
-    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+    material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g)'
   []
 
   #----------------------------------------------------------------------------#
@@ -1033,8 +1065,8 @@
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre         Q               k_Boltz      K_tol'
-    prop_values = '6.8191e-01    5.3772e-01      8.6173e-5    1e-4'
+    prop_names  = 'K_pre         Q               k_Boltz'
+    prop_values = '6.8191e-01    5.3772e-01      8.6173e-5'
   []
 
   #----------------------------------------------------------------------------#
@@ -1284,35 +1316,35 @@
 
 #------------------------------------------------------------------------------#
 [BCs]
-  # # Top boundary gas in equilibrium
-  # [oxygen]
-  #   type = DirichletBC
-  #   variable = 'w_o'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  # Top boundary gas in equilibrium
+  [oxygen]
+    type = DirichletBC
+    variable = 'w_o'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # [carbon_monoxide]
-  #   type = DirichletBC
-  #   variable = 'w_co'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  [carbon_monoxide]
+    type = DirichletBC
+    variable = 'w_co'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # # Fixed temperature gradient
-  # [fixed_T_top]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'top'
-  #   value = '3000'
-  # []
+  # Fixed temperature gradient
+  [fixed_T_top]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'top'
+    value = '3000'
+  []
 
-  # [fixed_T_bottom]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'bottom'
-  #   value = '2988'
-  # []
+  [fixed_T_bottom]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'bottom'
+    value = '2988'
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -1343,10 +1375,10 @@
   nl_max_its = 12
   nl_rel_tol = 1.0e-8
 
+  nl_abs_tol = 1e-10
+
   l_max_its = 30
   l_tol = 1.0e-6
-
-  nl_abs_tol = 1e-10 # Temp gets stuck
 
   start_time = 0.0
 
@@ -1613,7 +1645,7 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
+  file_base = ./results/step2_matReaction_out
 
   [console]
     type = Console
@@ -1629,6 +1661,7 @@
 
   [csv]
     type = CSV
+    append_date = True
   []
 
   [pgraph]

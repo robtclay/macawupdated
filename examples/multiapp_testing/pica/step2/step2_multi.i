@@ -11,35 +11,24 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   [gen]
-#     type = GeneratedMeshGenerator
-#     dim = 2
-
-#     xmin = 0
-#     xmax = 557280 # 120 microns
-#     nx = 120
-
-#     ymin = 0
-#     ymax = 557280 # 120 microns
-#     ny = 120
-
-#     elem_type = QUAD4
-#   []
-
-#   uniform_refine = 2
-# []
-
 [Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
-  []
-    parallel_type = DISTRIBUTED
-    uniform_refine = 0
-[]
+  [gen]
+    type = GeneratedMeshGenerator
+    dim = 2
 
+    xmin = 0
+    xmax = 557280 # 120 microns
+    nx = 120
+
+    ymin = 0
+    ymax = 557280 # 120 microns
+    ny = 120
+
+    elem_type = QUAD4
+  []
+
+  uniform_refine = 2
+[]
 
 #------------------------------------------------------------------------------#
 [GlobalParams]
@@ -55,23 +44,19 @@
 
 #------------------------------------------------------------------------------#
 [UserObjects]
-  [solution_uo]
-    type = SolutionUserObject
-    mesh = ../step1/step1_multi_exodus.e
-    system_variables = 'eta_f eta_g
-                        var_00 var_01 var_02
-                        var_10 var_11 var_12
-                        var_20 var_21 var_22'
-    timestep = 'LATEST'
-  []
+  # [solution_uo]
+  #   type = SolutionUserObject
+  #   mesh = ../step1/step1_multi_exodus.e
+  #   system_variables = 'eta_f eta_g
+  #                       var_00 var_01 var_02
+  #                       var_10 var_11 var_12
+  #                       var_20 var_21 var_22'
+  #   timestep = 'LATEST'
+  # []
 
   [detect_fiber]
     type = Terminator
     expression = 'int_h_f < 1e6'
-  []
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
   []
 []
 
@@ -104,7 +89,7 @@
     expression = '(T_top - T_bottom)/l_domain * y + T_bottom'
 
     symbol_names = 'T_bottom  T_top   l_domain'
-    symbol_values = '2988      3000    139320' # 12 K over 120 microns
+    symbol_values = '2988      3000    557280' # 12 K over 120 microns
   []
 
   [T_fiber_func]
@@ -114,78 +99,78 @@
     symbol_values = 'T_fiber_pp int_h_f'
   []
 
-  [ic_func_eta_f]
-    type = SolutionFunction
-    from_variable = eta_f
-    solution = solution_uo
-  []
-  [ic_func_eta_g]
-    type = SolutionFunction
-    from_variable = eta_g
-    solution = solution_uo
-  []
+  # [ic_func_eta_f]
+  #   type = SolutionFunction
+  #   from_variable = eta_f
+  #   solution = solution_uo
+  # []
+  # [ic_func_eta_g]
+  #   type = SolutionFunction
+  #   from_variable = eta_g
+  #   solution = solution_uo
+  # []
 
-  [ic_func_00]
-    type = SolutionFunction
-    from_variable = var_00
-    solution = solution_uo
-  []
-  [ic_func_01]
-    type = SolutionFunction
-    from_variable = var_01
-    solution = solution_uo
-  []
-  [ic_func_02]
-    type = SolutionFunction
-    from_variable = var_02
-    solution = solution_uo
-  []
+  # [ic_func_00]
+  #   type = SolutionFunction
+  #   from_variable = var_00
+  #   solution = solution_uo
+  # []
+  # [ic_func_01]
+  #   type = SolutionFunction
+  #   from_variable = var_01
+  #   solution = solution_uo
+  # []
+  # [ic_func_02]
+  #   type = SolutionFunction
+  #   from_variable = var_02
+  #   solution = solution_uo
+  # []
 
-  [ic_func_10]
-    type = SolutionFunction
-    from_variable = var_10
-    solution = solution_uo
-  []
-  [ic_func_11]
-    type = SolutionFunction
-    from_variable = var_11
-    solution = solution_uo
-  []
-  [ic_func_12]
-    type = SolutionFunction
-    from_variable = var_12
-    solution = solution_uo
-  []
+  # [ic_func_10]
+  #   type = SolutionFunction
+  #   from_variable = var_10
+  #   solution = solution_uo
+  # []
+  # [ic_func_11]
+  #   type = SolutionFunction
+  #   from_variable = var_11
+  #   solution = solution_uo
+  # []
+  # [ic_func_12]
+  #   type = SolutionFunction
+  #   from_variable = var_12
+  #   solution = solution_uo
+  # []
 
-  [ic_func_20]
-    type = SolutionFunction
-    from_variable = var_20
-    solution = solution_uo
-  []
-  [ic_func_21]
-    type = SolutionFunction
-    from_variable = var_21
-    solution = solution_uo
-  []
-  [ic_func_22]
-    type = SolutionFunction
-    from_variable = var_22
-    solution = solution_uo
-  []
+  # [ic_func_20]
+  #   type = SolutionFunction
+  #   from_variable = var_20
+  #   solution = solution_uo
+  # []
+  # [ic_func_21]
+  #   type = SolutionFunction
+  #   from_variable = var_21
+  #   solution = solution_uo
+  # []
+  # [ic_func_22]
+  #   type = SolutionFunction
+  #   from_variable = var_22
+  #   solution = solution_uo
+  # []
 []
 
 #------------------------------------------------------------------------------#
 [ICs]
-  [IC_eta_f]
-    type = FunctionIC
-    variable = eta_f
-    function = ic_func_eta_f
-  []
-  [IC_eta_g]
-    type = FunctionIC
-    variable = eta_g
-    function = ic_func_eta_g
-  []
+  # [IC_eta_f]
+  #   type = FunctionIC
+  #   variable = eta_f
+  #   function = ic_func_eta_f
+  # []
+  # [IC_eta_g]
+  #   type = FunctionIC
+  #   variable = eta_g
+  #   function = ic_func_eta_g
+  # []
 
   [IC_w_c]
     type = ConstantIC
@@ -209,53 +194,53 @@
     function = ic_func_T
   []
 
-  [IC_00]
-    type = FunctionIC
-    variable = var_00
-    function = ic_func_00
-  []
-  [IC_01]
-    type = FunctionIC
-    variable = var_01
-    function = ic_func_01
-  []
-  [IC_02]
-    type = FunctionIC
-    variable = var_02
-    function = ic_func_02
-  []
+  # [IC_00]
+  #   type = FunctionIC
+  #   variable = var_00
+  #   function = ic_func_00
+  # []
+  # [IC_01]
+  #   type = FunctionIC
+  #   variable = var_01
+  #   function = ic_func_01
+  # []
+  # [IC_02]
+  #   type = FunctionIC
+  #   variable = var_02
+  #   function = ic_func_02
+  # []
 
-  [IC_10]
-    type = FunctionIC
-    variable = var_10
-    function = ic_func_10
-  []
-  [IC_11]
-    type = FunctionIC
-    variable = var_11
-    function = ic_func_11
-  []
-  [IC_12]
-    type = FunctionIC
-    variable = var_12
-    function = ic_func_12
-  []
+  # [IC_10]
+  #   type = FunctionIC
+  #   variable = var_10
+  #   function = ic_func_10
+  # []
+  # [IC_11]
+  #   type = FunctionIC
+  #   variable = var_11
+  #   function = ic_func_11
+  # []
+  # [IC_12]
+  #   type = FunctionIC
+  #   variable = var_12
+  #   function = ic_func_12
+  # []
 
-  [IC_20]
-    type = FunctionIC
-    variable = var_20
-    function = ic_func_20
-  []
-  [IC_21]
-    type = FunctionIC
-    variable = var_21
-    function = ic_func_21
-  []
-  [IC_22]
-    type = FunctionIC
-    variable = var_22
-    function = ic_func_22
-  []
+  # [IC_20]
+  #   type = FunctionIC
+  #   variable = var_20
+  #   function = ic_func_20
+  # []
+  # [IC_21]
+  #   type = FunctionIC
+  #   variable = var_21
+  #   function = ic_func_21
+  # []
+  # [IC_22]
+  #   type = FunctionIC
+  #   variable = var_22
+  #   function = ic_func_22
+  # []
 []
 
 #------------------------------------------------------------------------------#
@@ -1216,6 +1201,7 @@
 
     M_name = thcond_aniso
   []
+
   #----------------------------------------------------------------------------#
   # Specific heat
   [cp]
@@ -1239,7 +1225,7 @@
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
-  
+
   #------------------------------------------------------------------------------#
   # Conservation check
   [sum_eta]
@@ -1284,35 +1270,35 @@
 
 #------------------------------------------------------------------------------#
 [BCs]
-  # # Top boundary gas in equilibrium
-  # [oxygen]
-  #   type = DirichletBC
-  #   variable = 'w_o'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  # Top boundary gas in equilibrium
+  [oxygen]
+    type = DirichletBC
+    variable = 'w_o'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # [carbon_monoxide]
-  #   type = DirichletBC
-  #   variable = 'w_co'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  [carbon_monoxide]
+    type = DirichletBC
+    variable = 'w_co'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # # Fixed temperature gradient
-  # [fixed_T_top]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'top'
-  #   value = '3000'
-  # []
+  # Fixed temperature gradient
+  [fixed_T_top]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'top'
+    value = '3000'
+  []
 
-  # [fixed_T_bottom]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'bottom'
-  #   value = '2988'
-  # []
+  [fixed_T_bottom]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'bottom'
+    value = '2988'
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -1327,6 +1313,85 @@
     petsc_options_value = 'hypre     boomeramg       31                  0.7'
   []
 []
+
+[MultiApps]
+  [fiber_direction]
+    type = FullSolveMultiApp
+    execute_on = initial
+    # positions = '0 0 0'
+    input_files = ../step1/step1_multi.i
+  []
+[]
+
+[Transfers]
+  [eta_f]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = eta_f
+    variable = eta_f
+  []
+  [eta_g]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = eta_g
+    variable = eta_g
+  []
+  [var_00]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_00
+    variable = var_00
+  []
+  [var_01]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_01
+    variable = var_01
+  []
+  [var_02]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_02
+    variable = var_02
+  []
+  [var_10]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_10
+    variable = var_10
+  []
+  [var_11]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_11
+    variable = var_11
+  []
+  [var_12]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_12
+    variable = var_12
+  []
+  [var_20]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_20
+    variable = var_20
+  []
+  [var_21]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_21
+    variable = var_21
+  []
+  [var_22]
+    type = MultiAppCopyTransfer
+    from_multi_app = fiber_direction
+    source_variable = var_22
+    variable = var_22
+  []
+[]
+
 
 #---------------------------------------------------------------------------------------------#
 #######  #     #  #######   #####   #     #  #######  ###  #######  #     #  #######  ######
@@ -1343,15 +1408,15 @@
   nl_max_its = 12
   nl_rel_tol = 1.0e-8
 
+  nl_abs_tol = 1e-10
+
   l_max_its = 30
   l_tol = 1.0e-6
-
-  nl_abs_tol = 1e-10 # Temp gets stuck
 
   start_time = 0.0
 
   dtmin = 1e-6
-  dtmax = 1e10
+  dtmax = 1e4
 
   #verbose = true
 
@@ -1387,13 +1452,13 @@
 #        ####    ####     #
 #------------------------------------------------------------------------------#
 [VectorPostprocessors]
-  [grain_volumes]
-    type = FeatureVolumeVectorPostprocessor
-    flood_counter = grain_tracker
-    single_feature_per_element = true
-    execute_on = 'INITIAL TIMESTEP_END FINAL'
-    outputs = none
-  []
+  # [grain_volumes]
+  #   type = FeatureVolumeVectorPostprocessor
+  #   flood_counter = grain_tracker
+  #   single_feature_per_element = true
+  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
+  #   outputs = none
+  # []
 
   [feature_volumes]
     type = FeatureVolumeVectorPostprocessor
@@ -1614,7 +1679,11 @@
 #------------------------------------------------------------------------------#
 [Outputs]
   file_base = ./results/step2_multi_out
-
+  [check]
+    type = Checkpoint
+    num_files = 4
+  []
+  
   [console]
     type = Console
     fit_mode = 80
@@ -1623,8 +1692,6 @@
 
   [exodus]
     type = Exodus
-    append_date = True
-    time_step_interval = 3
   []
 
   [csv]

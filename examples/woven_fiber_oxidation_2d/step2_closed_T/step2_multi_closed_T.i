@@ -11,25 +11,6 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   [gen]
-#     type = GeneratedMeshGenerator
-#     dim = 2
-
-#     xmin = 0
-#     xmax = 557280 # 120 microns
-#     nx = 120
-
-#     ymin = 0
-#     ymax = 557280 # 120 microns
-#     ny = 120
-
-#     elem_type = QUAD4
-#   []
-
-#   uniform_refine = 2
-# []
-
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
@@ -436,33 +417,33 @@
 [Kernels]
   # Chemical reaction
   [reaction_kernel_C]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_c
-    mat_function = reaction_CO
-    args = 'w_o eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_o eta_f eta_g T'
   []
 
   [reaction_kernel_O]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_o
-    mat_function = reaction_CO
-    args = 'w_c eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_c eta_f eta_g T'
   []
 
   [reaction_kernel_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_co
-    mat_function = production_CO
-    args = 'w_c w_o eta_f eta_g T'
+    mask = production_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
   []
 
-  # #----------------------------------------------------------------------------#
+  #----------------------------------------------------------------------------#
   # Endothermic Reaction
   [reaction_energy_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = T
-    mat_function = energy_CO
-    args = 'w_c w_o eta_f eta_g'
+    mask = energy_CO
+    coupled_variables = 'w_c w_o eta_f eta_g'
   []
 
   #----------------------------------------------------------------------------#
@@ -1216,6 +1197,7 @@
 
     M_name = thcond_aniso
   []
+  
   #----------------------------------------------------------------------------#
   # Specific heat
   [cp]
@@ -1343,15 +1325,15 @@
   nl_max_its = 12
   nl_rel_tol = 1.0e-8
 
+  nl_abs_tol = 1e-6 # Temp gets stuck
+
   l_max_its = 30
   l_tol = 1.0e-6
-
-  nl_abs_tol = 1e-6 # Temp gets stuck
 
   start_time = 0.0
 
   dtmin = 1e-6
-  #dtmax = 1e4
+  dtmax = 1e10
 
   #verbose = true
 
@@ -1613,7 +1595,7 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
+  file_base = ./results/step2_multi_closed_T
 
   [console]
     type = Console
@@ -1629,6 +1611,7 @@
 
   [csv]
     type = CSV
+    append_date = True
   []
 
   [pgraph]

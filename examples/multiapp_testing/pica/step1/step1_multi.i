@@ -10,14 +10,24 @@
 
 #------------------------------------------------------------------------------#
 [Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
+  [gen]
+    type = GeneratedMeshGenerator
+    dim = 2
+
+    xmin = 0
+    xmax = 557280 # 120 microns
+    nx = 120
+
+    ymin = 0
+    ymax = 557280 # 120 microns
+    ny = 120
+
+    elem_type = QUAD4
   []
-    parallel_type = DISTRIBUTED
-    uniform_refine = 0
+
+  uniform_refine = 2
 []
+
 #------------------------------------------------------------------------------#
 [GlobalParams]
   # Interface thickness from Grand Potential material
@@ -33,6 +43,22 @@
 
 #------------------------------------------------------------------------------#
 [Functions]
+  # IMAGE READER
+  [ic_func_eta_f]
+    type = ImageFunction
+    file = ../../../Fibers/multi_simple.tif
+    threshold = 170
+    upper_value = 0.0 # white is zero
+    lower_value = 1.0 # black is one
+  []
+  [ic_func_eta_g]
+    type = ImageFunction
+    file = ../../../Fibers/multi_simple.tif
+    threshold = 170
+    upper_value = 1.0 # white is one
+    lower_value = 0.0 # black is zero
+  []
+
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
@@ -44,27 +70,19 @@
   []
 []
 
-[UserObjects]
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
-  []
-[]
 
 #------------------------------------------------------------------------------#
 [ICs]
-  [IC_eta_g]
-    # Initializes the variable info from the ebsd data
-    type = ReconPhaseVarIC
-    ebsd_reader = ebsd
-    phase = 1
-    variable = eta_g
-  []
+  # IMAGE READER
   [IC_eta_f]
-    type = ReconPhaseVarIC
-    ebsd_reader = ebsd
-    phase = 2
+    type = FunctionIC
     variable = eta_f
+    function = ic_func_eta_f
+  []
+  [IC_eta_g]
+    type = FunctionIC
+    variable = eta_g
+    function = ic_func_eta_g
   []
 
   [IC_Tx]
@@ -144,10 +162,6 @@
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0.0
-  []
-  [PHASE]
-    family = MONOMIAL
-    order = CONSTANT
   []
 []
 
@@ -382,8 +396,6 @@
     sigma = '0.01'
     kappa_name = kappa
     mu_name = mu
-    # width = 4644
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -394,7 +406,6 @@
     coupled_variables = 'eta_f eta_g'
 
     expression = 'eta_f + eta_g'
-    outputs = exodus
   []
 
   [sum_h]
@@ -405,7 +416,6 @@
     expression = 'h_f + h_g'
 
     material_property_names = 'h_f h_g'
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -417,7 +427,7 @@
     expression = 'h_f*100.0 + h_g*1.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
-    outputs = exodus
+
   []
 
   [th_cond_AF]
@@ -428,7 +438,6 @@
     expression = 'h_f*100.0 + h_g*0.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -446,7 +455,6 @@
     correct_negative_directions = false
     angle_tol = 60
     norm_tol = 1
-    outputs = exodus
   []
 
   # MobilityRotationVector calculates the transformed tensor given the fiber direction
@@ -455,7 +463,6 @@
     M_A = thcond_f
     direction_vector = fiber_direction_AF
     M_name = rot_thcond_f
-    outputs = exodus
   []
   #----------------------------------------------------------------------------#
   # Thermal conductivity
@@ -488,7 +495,6 @@
     tensors = 'rot_thcond_f   thcond_g'
 
     M_name = thcond_aniso
-    outputs = exodus
   []
 
 [] # End of Materials
@@ -557,7 +563,7 @@
   start_time = 0.0
   end_time = 200
 
-  dtmin = 1e-10
+  dtmin = 1e-6
 
   # verbose = true
 
@@ -629,6 +635,12 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
+  # file_base = ./results/step2_multi_out
+  # [check]
+  #   type = Checkpoint
+  #   num_files = 4
+  # []
+
   [console]
     type = Console
     fit_mode = 160
@@ -637,10 +649,6 @@
 
   [exodus]
     type = Exodus
-  []
-
-  [csv]
-    type = CSV
   []
 
   [pgraph]

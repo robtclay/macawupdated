@@ -11,7 +11,6 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
@@ -418,33 +417,33 @@
 [Kernels]
   # Chemical reaction
   [reaction_kernel_C]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_c
-    mat_function = reaction_CO
-    args = 'w_o eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_o eta_f eta_g T'
   []
 
   [reaction_kernel_O]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_o
-    mat_function = reaction_CO
-    args = 'w_c eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_c eta_f eta_g T'
   []
 
   [reaction_kernel_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_co
-    mat_function = production_CO
-    args = 'w_c w_o eta_f eta_g T'
+    mask = production_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
   []
 
-  # #----------------------------------------------------------------------------#
+  #----------------------------------------------------------------------------#
   # Endothermic Reaction
   [reaction_energy_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = T
-    mat_function = energy_CO
-    args = 'w_c w_o eta_f eta_g'
+    mask = energy_CO
+    coupled_variables = 'w_c w_o eta_f eta_g'
   []
 
   #----------------------------------------------------------------------------#
@@ -1326,7 +1325,7 @@
   start_time = 0.0
 
   dtmin = 1e-6
-  #dtmax = 1e4
+  dtmax = 1e10
 
   #verbose = true
 
@@ -1588,7 +1587,7 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
+  file_base = ./results/step2_multi_flux100
 
   [console]
     type = Console
@@ -1604,6 +1603,7 @@
 
   [csv]
     type = CSV
+    append_date = True
   []
 
   [pgraph]

@@ -375,33 +375,33 @@
 [Kernels]
     # Chemical reaction
     [reaction_kernel_C]
-      type = PhaseFieldMaterialReaction
+      type = MaskedBodyForce
       variable = w_c
-      mat_function = reaction_CO
-      args = 'w_o w_c w_co eta_f eta_c eta_g T'
+      mask = reaction_CO
+      coupled_variables = 'w_o w_c w_co eta_f eta_c eta_g T'
     []
-  
+
     [reaction_kernel_O]
-      type = PhaseFieldMaterialReaction
+      type = MaskedBodyForce
       variable = w_o
-      mat_function = reaction_CO
-      args = 'w_o w_c w_co eta_f eta_c eta_g T'
+      mask = reaction_CO
+      coupled_variables = 'w_o w_c w_co eta_f eta_c eta_g T'
     []
-  
+
     [reaction_kernel_CO]
-      type = PhaseFieldMaterialReaction
+      type = MaskedBodyForce
       variable = w_co
-      mat_function = production_CO
-      args = 'w_o w_c w_co eta_f eta_c eta_g T'
+      mask = production_CO
+      coupled_variables = 'w_o w_c w_co eta_f eta_c eta_g T'
     []
-  
+
     #----------------------------------------------------------------------------#
     # Endothermic Reaction
     [reaction_energy_CO]
-      type = PhaseFieldMaterialReaction
+      type = MaskedBodyForce
       variable = T
-      mat_function = energy_CO
-      args = 'w_o w_c w_co eta_f eta_c eta_g T'
+      mask = energy_CO
+      coupled_variables = 'w_o w_c w_co eta_f eta_c eta_g T'
     []
   
     #----------------------------------------------------------------------------#

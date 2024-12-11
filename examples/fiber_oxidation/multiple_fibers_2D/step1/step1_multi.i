@@ -46,14 +46,14 @@
   # IMAGE READER
   [ic_func_eta_f]
     type = ImageFunction
-    file = ../../../Fibers/multi_regular.tif
+    file = ../../../Fibers/multi_simple.tif
     threshold = 170
     upper_value = 0.0 # white is zero
     lower_value = 1.0 # black is one
   []
   [ic_func_eta_g]
     type = ImageFunction
-    file = ../../../Fibers/multi_regular.tif
+    file = ../../../Fibers/multi_simple.tif
     threshold = 170
     upper_value = 1.0 # white is one
     lower_value = 0.0 # black is zero

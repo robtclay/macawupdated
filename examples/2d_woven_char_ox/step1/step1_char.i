@@ -13,7 +13,7 @@
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
+    filename = ../structure/CharOxOB_2D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
     uniform_refine = 0
@@ -33,14 +33,15 @@
 
 #------------------------------------------------------------------------------#
 [Functions]
+
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    expression = '(1000-2000)/464400 * x + 2000'
+    expression = '(1000-2000)/1673460 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
-    expression = '(1000-2000)/464400 * y + 2000'
+    expression = '(1000-2000)/139455 * y + 2000'
   []
 []
 
@@ -53,18 +54,25 @@
 
 #------------------------------------------------------------------------------#
 [ICs]
-  [IC_eta_g]
+
+  [IC_eta_c]
     # Initializes the variable info from the ebsd data
     type = ReconPhaseVarIC
     ebsd_reader = ebsd
     phase = 1
-    variable = eta_g
+    variable = eta_c
   []
   [IC_eta_f]
     type = ReconPhaseVarIC
     ebsd_reader = ebsd
     phase = 2
     variable = eta_f
+  []
+  [IC_eta_g]
+    type = ReconPhaseVarIC
+    ebsd_reader = ebsd
+    phase = 3
+    variable = eta_g
   []
 
   [IC_Tx]
@@ -81,6 +89,9 @@
 
 #------------------------------------------------------------------------------#
 [Variables]
+  #Phase eta_c: matrix
+  [eta_c]
+  []
   #Phase eta_f: carbon fiber
   [eta_f]
   []
@@ -240,54 +251,92 @@
 #------------------------------------------------------------------------------#
 [Kernels]
   #----------------------------------------------------------------------------#
+  # # eta_f kernels
+  # [AC_f_bulk]
+  #   type = ACGrGrMulti
+  #   variable = eta_f
+  #   v = 'eta_g'
+  #   gamma_names = 'gamma_fg'
+  #   mob_name = L
+  # []
+
+  # [AC_f_sw]
+  #   type = ACSwitching
+  #   variable = eta_f
+  #   Fj_names = 'omega_f omega_g'
+  #   hj_names = 'h_f     h_g'
+  #   mob_name = L
+  #   coupled_variables = 'eta_g'
+  # []
+
+  # [AC_f_int]
+  #   type = ACInterface
+  #   variable = eta_f
+  #   kappa_name = kappa
+  #   mob_name = L
+  #   coupled_variables = 'eta_g'
+  # []
+
+  # [eta_f_dot]
+  #   type = TimeDerivative
+  #   variable = eta_f
+  # []
+
   # eta_f kernels
-  [AC_f_bulk]
+  [eta_f_empty]
+  type = NullKernel
+  variable = eta_f
+  []
+
+
+  #----------------------------------------------------------------------------#
+  # eta_c kernels
+  [AC_c_bulk]
     type = ACGrGrMulti
-    variable = eta_f
-    v = 'eta_g'
-    gamma_names = 'gamma_fg'
-    mob_name = L
+    variable    = eta_c
+    v           = 'eta_f  eta_g'
+    gamma_names = 'gamma_fc    gamma_cg'
+    mob_name    = L
   []
 
-  [AC_f_sw]
+  [AC_c_sw]
     type = ACSwitching
-    variable = eta_f
-    Fj_names = 'omega_f omega_g'
-    hj_names = 'h_f     h_g'
-    mob_name = L
-    coupled_variables = 'eta_g'
+    variable  = eta_c
+    Fj_names  = 'omega_f  omega_c  omega_g'
+    hj_names  = 'h_f      h_c      h_g'
+    mob_name  = L
+    coupled_variables      = 'eta_f eta_g'
   []
 
-  [AC_f_int]
+  [AC_c_int]
     type = ACInterface
-    variable = eta_f
+    variable   = eta_c
     kappa_name = kappa
-    mob_name = L
-    coupled_variables = 'eta_g'
+    mob_name   = L
+    coupled_variables       = 'eta_f  eta_g'
   []
 
-  [eta_f_dot]
+  [eta_c_dot]
     type = TimeDerivative
-    variable = eta_f
+    variable = eta_c
   []
-
   #----------------------------------------------------------------------------#
   # eta_g kernels
   [AC_g_bulk]
     type = ACGrGrMulti
     variable = eta_g
-    v = 'eta_f'
-    gamma_names = 'gamma_fg'
+    v = 'eta_f  eta_c'
+    gamma_names = 'gamma_fg    gamma_cg'
     mob_name = L
   []
 
   [AC_g_sw]
     type = ACSwitching
     variable = eta_g
-    Fj_names = 'omega_f omega_g'
-    hj_names = 'h_f     h_g'
+    Fj_names = 'omega_f  omega_c  omega_g'
+    hj_names = 'h_f      h_c      h_g'
     mob_name = L
-    coupled_variables = 'eta_f'
+    coupled_variables = 'eta_f  eta_c'
   []
 
   [AC_g_int]
@@ -295,7 +344,7 @@
     variable = eta_g
     kappa_name = kappa
     mob_name = L
-    coupled_variables = 'eta_f'
+    coupled_variables = 'eta_f  eta_c'
   []
 
   [eta_g_dot]
@@ -335,17 +384,27 @@
   [switch_f]
     type = SwitchingFunctionMultiPhaseMaterial
     h_name = h_f
-    all_etas = 'eta_f eta_g'
+    all_etas = 'eta_f eta_c eta_g'
     phase_etas = 'eta_f'
 
     outputs = exodus
     output_properties = h_f
   []
 
+  [switch_c]
+    type = SwitchingFunctionMultiPhaseMaterial
+    h_name = h_c
+    all_etas = 'eta_f eta_c eta_g'
+    phase_etas = 'eta_c'
+
+    outputs = exodus
+    output_properties = h_c
+  []
+
   [switch_g]
     type = SwitchingFunctionMultiPhaseMaterial
     h_name = h_g
-    all_etas = 'eta_f eta_g'
+    all_etas = 'eta_f eta_c eta_g'
     phase_etas = 'eta_g'
 
     outputs = exodus
@@ -358,6 +417,12 @@
     type = DerivativeParsedMaterial
     property_name = omega_f
     expression = '1e-5'
+  []
+
+  [omega_c]
+    type = DerivativeParsedMaterial
+    property_name = omega_c
+    expression =  '1e-5'
   []
 
   [omega_g]
@@ -378,8 +443,10 @@
   # Grand Potential Interface Parameters
   [iface]
     type = GrandPotentialInterface
-    gamma_names = 'gamma_fg'
-    sigma = '0.01'
+    gamma_names = 'gamma_fc          gamma_fg           gamma_cg'
+    sigma       = '1.4829e-02   1.4829e-02    1.4829e-02' # = 0.2 J/m2
+    # gamma_names = 'gamma_fg'
+    # sigma = '0.01'
     kappa_name = kappa
     mu_name = mu
     # width = 4644
@@ -391,20 +458,20 @@
   [sum_eta]
     type = ParsedMaterial
     property_name = sum_eta
-    coupled_variables = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_c eta_g'
 
-    expression = 'eta_f + eta_g'
+    expression =  'eta_f + eta_c + eta_g'
     outputs = exodus
   []
 
   [sum_h]
     type = DerivativeParsedMaterial
     property_name = sum_h
-    coupled_variables = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_c eta_g'
 
-    expression = 'h_f + h_g'
+    expression =  'h_f + h_c + h_g'
 
-    material_property_names = 'h_f h_g'
+    material_property_names = 'h_f h_c h_g'
     outputs = exodus
   []
 
@@ -412,22 +479,22 @@
   [thermal_conductivity]
     type = DerivativeParsedMaterial
     property_name = thermal_conductivity
-    coupled_variables = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_c eta_g'
 
-    expression = 'h_f*100.0 + h_g*1.0'
+    expression = 'h_f*100.0 + h_c*1.0 + h_g*1.0'
 
-    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
+    material_property_names = 'h_f(eta_f,eta_c,eta_g) h_c(eta_f,eta_c,eta_g) h_g(eta_f,eta_c,eta_g)'
     outputs = exodus
   []
 
   [th_cond_AF]
     type = DerivativeParsedMaterial
     property_name = th_cond_AF
-    coupled_variables = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_c eta_g'
 
-    expression = 'h_f*100.0 + h_g*0.0'
+    expression = 'h_f*100.0 + h_c*0.0 + h_g*0.0'
 
-    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
+    material_property_names = 'h_f(eta_f,eta_c,eta_g) h_c(eta_f,eta_c,eta_g) h_g(eta_f,eta_c,eta_g)'
     outputs = exodus
   []
 
@@ -479,13 +546,22 @@
     M_name = thcond_g
   []
 
+  [thcond_c]
+    type = ConstantAnisotropicMobility
+    tensor = '0      0    0
+              0      0    0
+              0      0    0'
+
+    M_name = thcond_c
+  []
+
   # Creates a compound tensor for the entire domain
   [thcond_composite]
     type = CompositeMobilityTensor
-    coupled_variables = 'eta_f eta_g'
+    coupled_variables = 'eta_f eta_c eta_g'
 
-    weights = 'h_f            h_g'
-    tensors = 'rot_thcond_f   thcond_g'
+    weights = 'h_f            h_c        h_g'
+    tensors = 'rot_thcond_f   thcond_c   thcond_g'
 
     M_name = thcond_aniso
     outputs = exodus
@@ -552,7 +628,7 @@
   nl_rel_tol = 1.0e-8
 
   l_max_its = 30
-  l_tol = 1.0e-8
+  l_tol = 1.0e-6
 
   start_time = 0.0
   end_time = 200
@@ -564,7 +640,7 @@
   automatic_scaling = true
   compute_scaling_once = false
 
-  line_search = basic
+  line_search = default
   line_search_package = petsc
 
   scheme = bdf2
@@ -573,13 +649,13 @@
     type = IterationAdaptiveDT
     dt = 1
 
-    # growth_factor = 1.2
-    # cutback_factor = 0.83333
+    growth_factor = 1.2
+    cutback_factor = 0.83333
 
     optimal_iterations = 6 # Number of nonlinear
-    # linear_iteration_ratio = 10 # Ratio of linear to nonlinear
+    linear_iteration_ratio = 10 # Ratio of linear to nonlinear
 
-    # iteration_window = 0
+    iteration_window = 0
   []
 []
 
@@ -600,7 +676,21 @@
 
     allow_duplicate_execution_on_initial = true
 
-    outputs = 'exodus console'
+    outputs = 'csv exodus console'
+  []
+
+  [int_h_c]
+    type = ElementIntegralMaterialProperty
+    mat_prop = h_c
+
+    outputs = 'csv exodus console'
+  []
+
+  [int_h_g]
+    type = ElementIntegralMaterialProperty
+    mat_prop = h_g
+
+    outputs = 'csv exodus console'
   []
 
   #----------------------------------------------------------------------------#
@@ -629,6 +719,8 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
+  file_base = step1_char_out
+  
   [console]
     type = Console
     fit_mode = 160
@@ -641,6 +733,7 @@
 
   [csv]
     type = CSV
+    execute_on = 'TIMESTEP_END'
   []
 
   [pgraph]

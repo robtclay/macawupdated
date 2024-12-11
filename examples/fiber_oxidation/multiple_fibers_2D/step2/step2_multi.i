@@ -187,13 +187,11 @@
     variable = w_co
     value = 0
   []
-
-  [./IC_T]
+  [IC_T]
     type = FunctionIC
     variable = T
     function = ic_func_T
-  [../]
-
+  []
   [IC_00]
     type = FunctionIC
     variable = var_00
@@ -421,33 +419,33 @@
 [Kernels]
   # Chemical reaction
   [reaction_kernel_C]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_c
-    mat_function = reaction_CO
-    args = 'w_o eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_o eta_f eta_g T'
   []
 
   [reaction_kernel_O]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_o
-    mat_function = reaction_CO
-    args = 'w_c eta_f eta_g T'
+    mask = reaction_CO
+    coupled_variables = 'w_c eta_f eta_g T'
   []
 
   [reaction_kernel_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = w_co
-    mat_function = production_CO
-    args = 'w_c w_o eta_f eta_g T'
+    mask = production_CO
+    coupled_variables = 'w_c w_o eta_f eta_g T'
   []
 
-  # #----------------------------------------------------------------------------#
+  #----------------------------------------------------------------------------#
   # Endothermic Reaction
   [reaction_energy_CO]
-    type = PhaseFieldMaterialReaction
+    type = MaskedBodyForce
     variable = T
-    mat_function = energy_CO
-    args = 'w_c w_o eta_f eta_g'
+    mask = energy_CO
+    coupled_variables = 'w_c w_o eta_f eta_g'
   []
 
   #----------------------------------------------------------------------------#
@@ -648,6 +646,14 @@
   #   density = density
   #   specific_heat = specific_heat
   # []
+  [Heat_Time_Derivative]
+    type = SpecificHeatConductionTimeDerivative
+    variable = T
+    coupled_variables = 'eta_f eta_g'
+
+    density = density
+    specific_heat = specific_heat
+  []
 []
 #----------------------------------------------------------------------------#
 # END OF KERNELS
@@ -1192,6 +1198,30 @@
     tensors = 'thcond_f  thcond_g'
 
     M_name = thcond_aniso
+  []
+
+  #----------------------------------------------------------------------------#
+  # Specific heat
+  [cp]
+    type = DerivativeParsedMaterial
+    property_name = specific_heat
+    coupled_variables = 'eta_f eta_g'
+
+    expression = 'h_f * (4.0010e+09) + h_g * (1.9941e+09)'
+
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
+  []
+
+  #----------------------------------------------------------------------------#
+  # Density
+  [density]
+    type = DerivativeParsedMaterial
+    property_name = density
+    coupled_variables = 'eta_f eta_g'
+
+    expression = 'h_f * (1.9944e-14) + h_g * (1.2963e-18)'
+
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
 
   #------------------------------------------------------------------------------#

@@ -11,25 +11,6 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   [gen]
-#     type = GeneratedMeshGenerator
-#     dim = 2
-
-#     xmin = 0
-#     xmax = 557280 # 120 microns
-#     nx = 120
-
-#     ymin = 0
-#     ymax = 557280 # 120 microns
-#     ny = 120
-
-#     elem_type = QUAD4
-#   []
-
-#   uniform_refine = 2
-# []
-
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
@@ -65,10 +46,10 @@
     timestep = 'LATEST'
   []
 
-  [detect_fiber]
-    type = Terminator
-    expression = 'int_h_f < 1e6'
-  []
+  # [detect_fiber]
+  #   type = Terminator
+  #   expression = 'int_h_f < 1e6'
+  # []
   [ebsd]
     # Read in the EBSD data. Uses the filename given in the mesh block.
     type = EBSDReader
@@ -1284,35 +1265,35 @@
 
 #------------------------------------------------------------------------------#
 [BCs]
-  # # Top boundary gas in equilibrium
-  # [oxygen]
-  #   type = DirichletBC
-  #   variable = 'w_o'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  # Top boundary gas in equilibrium
+  [oxygen]
+    type = DirichletBC
+    variable = 'w_o'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # [carbon_monoxide]
-  #   type = DirichletBC
-  #   variable = 'w_co'
-  #   boundary = 'top'
-  #   value = '0'
-  # []
+  [carbon_monoxide]
+    type = DirichletBC
+    variable = 'w_co'
+    boundary = 'top'
+    value = '0'
+  []
 
-  # # Fixed temperature gradient
-  # [fixed_T_top]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'top'
-  #   value = '3000'
-  # []
+  # Fixed temperature gradient
+  [fixed_T_top]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'top'
+    value = '3000'
+  []
 
-  # [fixed_T_bottom]
-  #   type = DirichletBC
-  #   variable = 'T'
-  #   boundary = 'bottom'
-  #   value = '2988'
-  # []
+  [fixed_T_bottom]
+    type = DirichletBC
+    variable = 'T'
+    boundary = 'bottom'
+    value = '2988'
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -1343,15 +1324,15 @@
   nl_max_its = 12
   nl_rel_tol = 1.0e-8
 
+  nl_abs_tol = 1e-10
+
   l_max_its = 30
   l_tol = 1.0e-6
-
-  nl_abs_tol = 1e-10 # Temp gets stuck
 
   start_time = 0.0
 
   dtmin = 1e-6
-  dtmax = 1e10
+  #dtmax = 1e4
 
   #verbose = true
 
@@ -1614,6 +1595,10 @@
 #------------------------------------------------------------------------------#
 [Outputs]
   file_base = ./results/step2_multi_out
+  [check]
+    type = Checkpoint
+    num_files = 4
+  []
 
   [console]
     type = Console
