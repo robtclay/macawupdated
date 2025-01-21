@@ -16,10 +16,10 @@
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_3D_ebsd_old.txt
+    filename = ../structure/FiberOxOB_3D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
-    uniform_refine = 2
+    uniform_refine = 0
 []
 
 
@@ -291,33 +291,33 @@
 [Kernels]
   # Chemical reaction
   [reaction_kernel_C]
-    type = MaskedBodyForce
+    type = PhaseFieldMaterialReaction
     variable = w_c
-    mask = reaction_CO
-    coupled_variables = 'w_o eta_f eta_g T'
+    mat_function = reaction_CO
+    args = 'w_o eta_f eta_g T'
   []
 
   [reaction_kernel_O]
-    type = MaskedBodyForce
+    type = PhaseFieldMaterialReaction
     variable = w_o
-    mask = reaction_CO
-    coupled_variables = 'w_c eta_f eta_g T'
+    mat_function = reaction_CO
+    args = 'w_c eta_f eta_g T'
   []
 
   [reaction_kernel_CO]
-    type = MaskedBodyForce
+    type = PhaseFieldMaterialReaction
     variable = w_co
-    mask = production_CO
-    coupled_variables = 'w_c w_o eta_f eta_g T'
+    mat_function = production_CO
+    args = 'w_c w_o eta_f eta_g T'
   []
 
-  #----------------------------------------------------------------------------#
+  # #----------------------------------------------------------------------------#
   # Endothermic Reaction
   [reaction_energy_CO]
-    type = MaskedBodyForce
+    type = PhaseFieldMaterialReaction
     variable = T
-    mask = energy_CO
-    coupled_variables = 'w_c w_o eta_f eta_g'
+    mat_function = energy_CO
+    args = 'w_c w_o eta_f eta_g'
   []
 
   #----------------------------------------------------------------------------#
@@ -1198,7 +1198,7 @@
   [hypre]
     type = SMP
     full = true
-    solve_type = NEWTON
+    # solve_type = NEWTON
     petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart  -pc_hypre_boomeramg_strong_threshold'
     petsc_options_value = 'hypre     boomeramg       31                  0.7'
   []
@@ -1301,7 +1301,7 @@
 #---------------------------------------------------------------------------------------------#
 [Executioner]
   type = Transient
-
+  solve_type = PJFNK
   nl_max_its = 12
   nl_rel_tol = 1.0e-6
 
@@ -1324,15 +1324,9 @@
   line_search_package = petsc
 
   scheme = bdf2
-
-  [Adaptivity]
-    interval = 2
-    refine_fraction = 0.8
-    coarsen_fraction = 0.03
-    max_h_level = 0
-    initial_adaptivity = 2
-  []
-
+  
+  petsc_options_iname = '-pc_type -sub_pc_type -pc_asm_overlap'
+  petsc_options_value = ' asm      lu           2'
   [TimeStepper]
     type = IterationAdaptiveDT
     dt = 1
@@ -1357,13 +1351,13 @@
 #        ####    ####     #
 #------------------------------------------------------------------------------#
 [VectorPostprocessors]
-  # [grain_volumes]
-  #   type = FeatureVolumeVectorPostprocessor
-  #   flood_counter = grain_tracker
-  #   single_feature_per_element = true
-  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
-  #   outputs = none
-  # []
+#  [grain_volumes]
+#    type = FeatureVolumeVectorPostprocessor
+#    flood_counter = grain_tracker
+#    single_feature_per_element = true
+#    execute_on = 'INITIAL TIMESTEP_END FINAL'
+#    outputs = none
+#  []
 
   [feature_volumes]
     type = FeatureVolumeVectorPostprocessor
@@ -1583,12 +1577,13 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
+  file_base = ./results/noPrecondition_step2_multi_out
   [check]
     type = Checkpoint
     num_files = 4
+    use_displaced = True
   []
-
+  
   [console]
     type = Console
     fit_mode = 80
@@ -1597,13 +1592,12 @@
 
   [exodus]
     type = Exodus
-    append_date = True
+    # append_date = True
     time_step_interval = 3
   []
 
   [csv]
     type = CSV
-    append_date = True
   []
 
   [pgraph]

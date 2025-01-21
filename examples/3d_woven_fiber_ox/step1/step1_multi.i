@@ -554,47 +554,47 @@
 []
 
 #------------------------------------------------------------------------------#
-# [Preconditioning]
-#   active = 'hypre'
+[Preconditioning]
+  active = 'hypre'
 
-#   [jacobite]
-#     type = FDP
-#     full = true
-#   []
+  [jacobite]
+    type = FDP
+    full = true
+  []
 
-#   [lu]
-#     type = SMP
-#     full = true
-#     solve_type = NEWTON
-#     petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-#     petsc_options_value = 'lu        superlu_dist'
-#   []
+  [lu]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
+    petsc_options_value = 'lu        superlu_dist'
+  []
 
-#   [asm]
-#     type = SMP
-#     full = true
-#     solve_type = NEWTON
-#     petsc_options_iname = '-pc_type -ksp_grmres_restart -sub_ksp_type -sub_pc_type  -pc_asm_overlap'
-#     petsc_options_value = 'asm      31                  preonly       lu            2'
-#   []
+  [asm]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type -ksp_grmres_restart -sub_ksp_type -sub_pc_type  -pc_asm_overlap'
+    petsc_options_value = 'asm      31                  preonly       lu            2'
+  []
 
-#   [hypre]
-#     type = SMP
-#     full = true
-#     solve_type = NEWTON
-#     petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart  '
-#                           '-pc_hypre_boomeramg_strong_threshold'
-#     petsc_options_value = 'hypre     boomeramg       31                  0.7'
-#   []
+  [hypre]
+    type = SMP
+    full = true
+    # solve_type = NEWTON
+    petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart  '
+                          '-pc_hypre_boomeramg_strong_threshold'
+    petsc_options_value = 'hypre     boomeramg       31                  0.7'
+  []
 
-#   [bjacobi]
-#     type = SMP
-#     full = true
-#     solve_type = NEWTON
-#     petsc_options_iname = '-pc_type  -ksp_type  -ksp_gmres_restart -sub_pc_type -sub_ksp_type'
-#     petsc_options_value = 'bjacobi   gmres      31                 lu           preonly'
-#   []
-# []
+  [bjacobi]
+    type = SMP
+    full = true
+    solve_type = NEWTON
+    petsc_options_iname = '-pc_type  -ksp_type  -ksp_gmres_restart -sub_pc_type -sub_ksp_type'
+    petsc_options_value = 'bjacobi   gmres      31                 lu           preonly'
+  []
+[]
 
 #---------------------------------------------------------------------------------------------#
 #######  #     #  #######   #####   #     #  #######  ###  #######  #     #  #######  ######

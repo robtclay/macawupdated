@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------#
 # Carbon Fiber Oxidation
 # Nondimensional parameters with convertion factors:
-# lo = 2.1524e-04 micron
-# to = 4.3299e-04 s
-# eo = 3.9 eV
+lo = 2.1524e-04  # micron 
+to = 4.3299e-04 # s 
+eo = 3.9 # eV
 # This file reads the IC of the fibers and gas order parameters from step1,
 # as well as the anisotropic thermal conductivity tensor. In this final step,
 # we perform the phase-field carbon fiber oxidation fully coupled with heat
@@ -11,25 +11,6 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   [gen]
-#     type = GeneratedMeshGenerator
-#     dim = 2
-
-#     xmin = 0
-#     xmax = 557280 # 120 microns
-#     nx = 120
-
-#     ymin = 0
-#     ymax = 557280 # 120 microns
-#     ny = 120
-
-#     elem_type = QUAD4
-#   []
-
-#   uniform_refine = 2
-# []
-
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
@@ -44,7 +25,7 @@
 #------------------------------------------------------------------------------#
 [GlobalParams]
   # Interface thickness for the Grand Potential material
-  width = 4644 # int_width 1 micron, half of the total width
+  width = ${fparse 1/lo}  #4644 # int_width 1 micron, half of the total width
 
   # [Materials] stuff during initialization
   derivative_order = 2
@@ -829,7 +810,7 @@
 
   #----------------------------------------------------------------------------#
   # Grand potential density interfacial part for visualization purposes
-  [./omega_inter]
+  [omega_inter]
     type = ParsedMaterial
     property_name = omega_inter
     coupled_variables = 'eta_f eta_g'
@@ -841,7 +822,7 @@
     constant_expressions  = '1.5'
 
     material_property_names = 'mu'
-  [../]
+  []
 
   #----------------------------------------------------------------------------#
   # CARBON
@@ -1075,7 +1056,7 @@
     type = GenericConstantMaterial
 
     prop_names = 'int_width'
-    prop_values = '4644' # eta's width
+    prop_values = '${fparse 1/lo}'#4644' # eta's width
   []
 
   #----------------------------------------------------------------------------#
@@ -1122,7 +1103,7 @@
   [params]
     type = GenericConstantMaterial
     prop_names = 'To     k_b         Va'
-    prop_values = '3000  2.2096e-05  1.0'
+    prop_values = '3000  ${fparse 8.6173e-5/eo}  1.0'#2.2096e-05  1.0'
   []
 
   [formation_energies]
@@ -1373,7 +1354,7 @@
   type = Transient
 
   nl_max_its = 12
-  nl_rel_tol = 1.0e-8
+  nl_rel_tol = ${fparse 4.3299e-12/to} #1.0e-8
 
   nl_abs_tol = 1e-10
 

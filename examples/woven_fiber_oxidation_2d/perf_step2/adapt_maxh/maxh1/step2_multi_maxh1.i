@@ -11,12 +11,11 @@
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-
 [Mesh]
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_3D_ebsd_old.txt
+    filename = ../../../structure/FiberOxOB_2D_ebsd.txt
   []
     parallel_type = DISTRIBUTED
     uniform_refine = 2
@@ -37,11 +36,20 @@
 
 #------------------------------------------------------------------------------#
 [UserObjects]
-
-  [detect_fiber]
-    type = Terminator
-    expression = 'int_h_f < 1e9'
+  [solution_uo]
+    type = SolutionUserObject
+    mesh = ../../../step1/step1_multi_exodus.e
+    system_variables = 'eta_f eta_g
+                        var_00 var_01 var_02
+                        var_10 var_11 var_12
+                        var_20 var_21 var_22'
+    timestep = 'LATEST'
   []
+
+  # [detect_fiber]
+  #   type = Terminator
+  #   expression = 'int_h_f < 1e6'
+  # []
   [ebsd]
     # Read in the EBSD data. Uses the filename given in the mesh block.
     type = EBSDReader
@@ -86,10 +94,80 @@
     symbol_names = 'T_fiber_pp int_h_f'
     symbol_values = 'T_fiber_pp int_h_f'
   []
+
+  [ic_func_eta_f]
+    type = SolutionFunction
+    from_variable = eta_f
+    solution = solution_uo
+  []
+  [ic_func_eta_g]
+    type = SolutionFunction
+    from_variable = eta_g
+    solution = solution_uo
+  []
+
+  [ic_func_00]
+    type = SolutionFunction
+    from_variable = var_00
+    solution = solution_uo
+  []
+  [ic_func_01]
+    type = SolutionFunction
+    from_variable = var_01
+    solution = solution_uo
+  []
+  [ic_func_02]
+    type = SolutionFunction
+    from_variable = var_02
+    solution = solution_uo
+  []
+
+  [ic_func_10]
+    type = SolutionFunction
+    from_variable = var_10
+    solution = solution_uo
+  []
+  [ic_func_11]
+    type = SolutionFunction
+    from_variable = var_11
+    solution = solution_uo
+  []
+  [ic_func_12]
+    type = SolutionFunction
+    from_variable = var_12
+    solution = solution_uo
+  []
+
+  [ic_func_20]
+    type = SolutionFunction
+    from_variable = var_20
+    solution = solution_uo
+  []
+  [ic_func_21]
+    type = SolutionFunction
+    from_variable = var_21
+    solution = solution_uo
+  []
+  [ic_func_22]
+    type = SolutionFunction
+    from_variable = var_22
+    solution = solution_uo
+  []
 []
 
 #------------------------------------------------------------------------------#
 [ICs]
+  [IC_eta_f]
+    type = FunctionIC
+    variable = eta_f
+    function = ic_func_eta_f
+  []
+  [IC_eta_g]
+    type = FunctionIC
+    variable = eta_g
+    function = ic_func_eta_g
+  []
+
   [IC_w_c]
     type = ConstantIC
     variable = w_c
@@ -110,6 +188,54 @@
     type = FunctionIC
     variable = T
     function = ic_func_T
+  []
+
+  [IC_00]
+    type = FunctionIC
+    variable = var_00
+    function = ic_func_00
+  []
+  [IC_01]
+    type = FunctionIC
+    variable = var_01
+    function = ic_func_01
+  []
+  [IC_02]
+    type = FunctionIC
+    variable = var_02
+    function = ic_func_02
+  []
+
+  [IC_10]
+    type = FunctionIC
+    variable = var_10
+    function = ic_func_10
+  []
+  [IC_11]
+    type = FunctionIC
+    variable = var_11
+    function = ic_func_11
+  []
+  [IC_12]
+    type = FunctionIC
+    variable = var_12
+    function = ic_func_12
+  []
+
+  [IC_20]
+    type = FunctionIC
+    variable = var_20
+    function = ic_func_20
+  []
+  [IC_21]
+    type = FunctionIC
+    variable = var_21
+    function = ic_func_21
+  []
+  [IC_22]
+    type = FunctionIC
+    variable = var_22
+    function = ic_func_22
   []
 []
 
@@ -1174,119 +1300,12 @@
 [Preconditioning]
   active = 'hypre'
 
-  [jacobite]
-    type = FDP
-    full = true
-  []
-
-  [lu]
-    type = SMP
-    full = true
-    solve_type = NEWTON
-    petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
-    petsc_options_value = 'lu        superlu_dist'
-  []
-
-  [asm]
-    type = SMP
-    full = true
-    solve_type = NEWTON
-    petsc_options_iname = '-pc_type -ksp_grmres_restart -sub_ksp_type -sub_pc_type  -pc_asm_overlap'
-    petsc_options_value = 'asm      31                  preonly       lu            2'
-  []
-
   [hypre]
     type = SMP
     full = true
     solve_type = NEWTON
-    petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart  -pc_hypre_boomeramg_strong_threshold'
+    petsc_options_iname = '-pc_type  -pc_hypre_type  -ksp_gmres_restart -pc_hypre_boomeramg_strong_threshold'
     petsc_options_value = 'hypre     boomeramg       31                  0.7'
-  []
-
-  [bjacobi]
-    type = SMP
-    full = true
-    solve_type = NEWTON
-    petsc_options_iname = '-pc_type  -ksp_type  -ksp_gmres_restart -sub_pc_type -sub_ksp_type'
-    petsc_options_value = 'bjacobi   gmres      31                 lu           preonly'
-  []
-[]
-
-[MultiApps]
-  [fiber_direction]
-    type = FullSolveMultiApp
-    execute_on = initial
-    # positions = '0 0 0'
-    input_files = ../step1/step1_multi.i
-  []
-[]
-
-[Transfers]
-  [eta_f]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = eta_f
-    variable = eta_f
-  []
-  [eta_g]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = eta_g
-    variable = eta_g
-  []
-  [var_00]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_00
-    variable = var_00
-  []
-  [var_01]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_01
-    variable = var_01
-  []
-  [var_02]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_02
-    variable = var_02
-  []
-  [var_10]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_10
-    variable = var_10
-  []
-  [var_11]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_11
-    variable = var_11
-  []
-  [var_12]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_12
-    variable = var_12
-  []
-  [var_20]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_20
-    variable = var_20
-  []
-  [var_21]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_21
-    variable = var_21
-  []
-  [var_22]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_22
-    variable = var_22
   []
 []
 
@@ -1305,32 +1324,35 @@
   nl_max_its = 12
   nl_rel_tol = 1.0e-6
 
-  nl_abs_tol = 1e-10
+  nl_abs_tol = 1e-5
 
   l_max_its = 30
-  l_tol = 1.0e-6
+  l_tol = 1.0e-4
+
+  steady_state_detection = true
+  steady_state_tolerance = 1e-15
+  steady_state_start_time = 1e5
 
   start_time = 0.0
 
   dtmin = 1e-6
-  dtmax = 1e4
-
+  dtmax = 1e10
+  
   #verbose = true
 
   automatic_scaling = true
   compute_scaling_once = false
 
-  line_search = basic
+  line_search = default
   line_search_package = petsc
 
   scheme = bdf2
 
   [Adaptivity]
-    interval = 2
-    refine_fraction = 0.8
-    coarsen_fraction = 0.03
-    max_h_level = 0
-    initial_adaptivity = 2
+    # interval = 2
+    refine_fraction = 0.80
+    coarsen_fraction = 0.05
+    max_h_level = 1
   []
 
   [TimeStepper]
@@ -1357,13 +1379,13 @@
 #        ####    ####     #
 #------------------------------------------------------------------------------#
 [VectorPostprocessors]
-  # [grain_volumes]
-  #   type = FeatureVolumeVectorPostprocessor
-  #   flood_counter = grain_tracker
-  #   single_feature_per_element = true
-  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
-  #   outputs = none
-  # []
+  [grain_volumes]
+    type = FeatureVolumeVectorPostprocessor
+    flood_counter = grain_tracker
+    single_feature_per_element = true
+    execute_on = 'INITIAL TIMESTEP_END FINAL'
+    outputs = none
+  []
 
   [feature_volumes]
     type = FeatureVolumeVectorPostprocessor
@@ -1583,11 +1605,7 @@
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
-  [check]
-    type = Checkpoint
-    num_files = 4
-  []
+  file_base = ./results/step2_multi_maxh1_out
 
   [console]
     type = Console
