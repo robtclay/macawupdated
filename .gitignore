@@ -95,6 +95,8 @@ failed-unittest
 compile_commands.json
 build
 **/results/*
+**/step1_multi_out_cp/*
+
 
 # Allow certain files in gold directories
 !**/gold/*.e

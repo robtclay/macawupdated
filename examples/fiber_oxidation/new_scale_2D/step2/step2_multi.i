@@ -1,9 +1,11 @@
 #------------------------------------------------------------------------------#
 # Carbon Fiber Oxidation
 # Nondimensional parameters with convertion factors:
-# lo = 2.1524e-04 micron
-# to = 4.3299e-04 s
-# eo = 3.9 eV
+lo = 2.1524e-04  # micron 
+to = 4.3299e-04 # s 
+eo = 3.9 # eV
+Av = 6.02214076e23 # avogadro's number
+ev = 6.242e18 #conversion from J to EV							  
 # This file reads the IC of the fibers and gas order parameters from step1,
 # as well as the anisotropic thermal conductivity tensor. In this final step,
 # we perform the phase-field carbon fiber oxidation fully coupled with heat
@@ -12,15 +14,23 @@
 
 #------------------------------------------------------------------------------#
 [Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
-  []
-    parallel_type = DISTRIBUTED
-    uniform_refine = 0
-[]
+  [gen]
+    type = GeneratedMeshGenerator
+    dim = 2
 
+    xmin = 0
+    xmax = 557280 # 120 microns
+    nx = 120
+
+    ymin = 0
+    ymax = 557280 # 120 microns
+    ny = 120
+
+    elem_type = QUAD4
+  []
+
+  uniform_refine = 2
+[]
 
 #------------------------------------------------------------------------------#
 [GlobalParams]
@@ -46,13 +56,9 @@
     timestep = 'LATEST'
   []
 
-  # [detect_fiber]
-  #   type = Terminator
-  #   expression = 'int_h_f < 1e6'
-  # []
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
+  [detect_fiber]
+    type = Terminator
+    expression = 'int_h_f < 1e6'
   []
 []
 
@@ -85,7 +91,7 @@
     expression = '(T_top - T_bottom)/l_domain * y + T_bottom'
 
     symbol_names = 'T_bottom  T_top   l_domain'
-    symbol_values = '2988      3000    139320' # 12 K over 120 microns
+    symbol_values = '2988      3000    557280' # 12 K over 120 microns
   []
 
   [T_fiber_func]
@@ -183,13 +189,11 @@
     variable = w_co
     value = 0
   []
-
   [IC_T]
     type = FunctionIC
     variable = T
     function = ic_func_T
   []
-
   [IC_00]
     type = FunctionIC
     variable = var_00
@@ -334,21 +338,21 @@
 #------------------------------------------------------------------------------#
 [AuxKernels]
   # Total energy in the system for visualization purposes
-  [./total_energy]
+  [total_energy]
     type = TotalFreeEnergy
     variable = total_energy
     f_name = omega
     additional_free_energy = omega_inter
     interfacial_vars  = 'eta_f eta_g'
     kappa_names       = 'kappa kappa'
-  [../]
+  []
 
   # Interfacial grand potential for visualization purposes
-  [./aux_omega_inter]
+  [aux_omega_inter]
     type = MaterialRealAux
     property = omega_inter
     variable = omega_inter
-  [../]
+  []
 
   # Average T in the fibers
   [aux_T_fiber]
@@ -698,7 +702,7 @@
 
     constant_names = 'dH'
 
-    constant_expressions = '2.6575e-01' # = 100 kJ/mol
+    constant_expressions = ${fparse 100*1000*ev/(Av*eo)} #'2.6575e-01' # = 100 kJ/mol
 
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
   []
@@ -778,7 +782,7 @@
 
   #----------------------------------------------------------------------------#
   # Grand potential density interfacial part for visualization purposes
-  [./omega_inter]
+  [omega_inter]
     type = ParsedMaterial
     property_name = omega_inter
     coupled_variables = 'eta_f eta_g'
@@ -790,7 +794,7 @@
     constant_expressions  = '1.5'
 
     material_property_names = 'mu'
-  [../]
+  []
 
   #----------------------------------------------------------------------------#
   # CARBON
@@ -1014,8 +1018,8 @@
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre         Q               k_Boltz      K_tol'
-    prop_values = '6.8191e-01    5.3772e-01      8.6173e-5    1e-4'
+    prop_names  = 'K_pre                              Q               k_Boltz      K_tol'
+    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-4'
   []
 
   #----------------------------------------------------------------------------#
@@ -1047,7 +1051,7 @@
     expression= '4/3 * 1/int_width * alpha * Ave_K_CO'
 
     constant_names        = 'alpha'
-    constant_expressions  = '174150000'
+    constant_expressions  = '${fparse 9.6114e3*eo*(10^-3)/lo}'  #'174150000'
 
     material_property_names = 'int_width Ave_K_CO'
   []
@@ -1058,7 +1062,7 @@
     type = GrandPotentialInterface
     gamma_names = 'gamma_fg'
 
-    sigma = '1.4829e-02' # = 0.2 J/m2
+    sigma = '${fparse 0.2*ev/(1e6)^2*(lo^2)/eo}' # = 0.2 J/m2
 
     kappa_name = kappa
     mu_name = mu
@@ -1070,31 +1074,31 @@
   # Constant parameters
   [params]
     type = GenericConstantMaterial
-    prop_names = 'To     k_b         Va'
-    prop_values = '3000  2.2096e-05  1.0'
+    prop_names = 'To     k_b                      Va'
+    prop_values = '3000  ${fparse 8.6173e-5/eo}  ${fparse 9.97e-12/lo^3}' #2.2096e-05  1.0'
   []
 
   [formation_energies]
     type = GenericConstantMaterial
-    prop_names = 'Ef_v    Ef_o_f            Ef_co_f'
-    prop_values = '1.0     1.5641e+00        1.6179e+00'
+    prop_names = 'Ef_v                Ef_o_f            Ef_co_f'
+    prop_values = '${fparse 3.9/eo}  ${fparse 6.10/eo}  ${fparse 6.31/eo}' #'1   1.5641e+00        1.6179e+00'
   []
 
   [params_carbon]
     type = GenericConstantMaterial
-    prop_names = 'A_c_g        xeq_c_g'
-    prop_values = '2e-1           0.0'
+    prop_names = 'A_c_g                             xeq_c_g'
+    prop_values = '${fparse 7.82e1/(1e-9)*lo^3/eo}  0.0'      #'2e-1           0.0'
   []
 
   [params_oxygen]
     type = GenericConstantMaterial
-    prop_names = 'A_o_g        xeq_o_g'
-    prop_values = '1e-6          0.999'
+    prop_names = 'A_o_g                               xeq_o_g'
+    prop_values = '${fparse 3.91e-4/(1e-9)*lo^3/eo}    0.999'    #'1e-6          0.999'
   []
   [params_mono]
     type = GenericConstantMaterial
     prop_names = 'A_co_g       xeq_co_g'
-    prop_values = '1e-6           0.0'
+    prop_values = '${fparse 3.91e-4/(1e-9)*lo^3/eo}    0.0'   #'1e-6           0.0'
   []
 
   #----------------------------------------------------------------------------#
@@ -1104,7 +1108,7 @@
     property_name = D_c
     coupled_variables = 'eta_f eta_g'
 
-    expression= 'h_f*1.0 + h_g*9.3458e+11'
+    expression= 'h_f*${fparse 1.07e-12*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'   #'h_f*1 + h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1114,7 +1118,7 @@
     property_name = D_o
     coupled_variables = 'eta_f eta_g'
 
-    expression= 'h_f*2.8037e+09+ h_g*9.3458e+11'
+    expression= 'h_f*${fparse 3e-3*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'  #'h_f*2.8037e+09 + h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1124,7 +1128,7 @@
     property_name = D_co
     coupled_variables = 'eta_f eta_g'
 
-    expression= 'h_f*2.8037e+09+ h_g*9.3458e+11'
+    expression= 'h_f*${fparse 3e-3*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'  #'h_f*2.8037e+09 + h_g*9.3458e+11'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1180,9 +1184,13 @@
 
   [thcond_g]
     type = ConstantAnisotropicMobility
-    tensor = '2.6501e+04      0             0
-              0               2.6501e+04    0
-              0               0             2.6501e+04'
+    tensor = '${fparse 0.18*lo*ev*to/(1e6*eo)}        0                                     0
+              0                                       ${fparse 0.18*lo*ev*to/(1e6*eo)}      0
+              0                                       0                                     ${fparse 0.18*lo*ev*to/(1e6*eo)} '
+
+    # tensor = '2.6501e+04      0             0
+    #           0               2.6501e+04    0
+    #           0               0             2.6501e+04'
 
     M_name = thcond_g
   []
@@ -1197,6 +1205,7 @@
 
     M_name = thcond_aniso
   []
+
   #----------------------------------------------------------------------------#
   # Specific heat
   [cp]
@@ -1204,7 +1213,7 @@
     property_name = specific_heat
     coupled_variables = 'eta_f eta_g'
 
-    expression = 'h_f * (4.0010e+09) + h_g * (1.9941e+09)'
+    expression = 'h_f *${fparse 2.5*ev/eo} + h_g * ${fparse 1.25*ev/eo}' #'h_f * (4.0010e+09) + h_g * (1.9941e+09)'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1216,11 +1225,11 @@
     property_name = density
     coupled_variables = 'eta_f eta_g'
 
-    expression = 'h_f * (1.9944e-14) + h_g * (1.2963e-18)'
+    expression = 'h_f * ${fparse (2/1e12)*lo^3} + h_g * ${fparse (1.3e-4/1e12)*lo^3}' #'h_f * (1.9944e-14) + h_g * (1.2963e-18)' 
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
-  
+
   #------------------------------------------------------------------------------#
   # Conservation check
   [sum_eta]
@@ -1280,20 +1289,20 @@
     value = '0'
   []
 
-  # Fixed temperature gradient
-  [fixed_T_top]
-    type = DirichletBC
-    variable = 'T'
-    boundary = 'top'
-    value = '3000'
-  []
+  # # Fixed temperature gradient
+  # [fixed_T_top]
+  #   type = DirichletBC
+  #   variable = 'T'
+  #   boundary = 'top'
+  #   value = '3000'
+  # []
 
-  [fixed_T_bottom]
-    type = DirichletBC
-    variable = 'T'
-    boundary = 'bottom'
-    value = '2988'
-  []
+  # [fixed_T_bottom]
+  #   type = DirichletBC
+  #   variable = 'T'
+  #   boundary = 'bottom'
+  #   value = '2988'
+  # []
 []
 
 #------------------------------------------------------------------------------#
@@ -1322,17 +1331,21 @@
   type = Transient
 
   nl_max_its = 12
-  nl_rel_tol = 1.0e-8
+  nl_rel_tol = 1.0e-6
 
-  nl_abs_tol = 1e-10
+  nl_abs_tol = 1e-6
 
   l_max_its = 30
-  l_tol = 1.0e-6
+  l_tol = 1.0e-4
 
+  steady_state_detection = true
+  steady_state_tolerance = 1e-15
+  steady_state_start_time = 1e5
+  
   start_time = 0.0
 
   dtmin = 1e-6
-  #dtmax = 1e4
+  dtmax = 1e10
 
   #verbose = true
 
@@ -1595,10 +1608,6 @@
 #------------------------------------------------------------------------------#
 [Outputs]
   file_base = ./results/step2_multi_out
-  [check]
-    type = Checkpoint
-    num_files = 4
-  []
 
   [console]
     type = Console
@@ -1608,8 +1617,6 @@
 
   [exodus]
     type = Exodus
-    append_date = True
-    time_step_interval = 3
   []
 
   [csv]

@@ -16,9 +16,9 @@
   [ebsd_mesh]
     type = EBSDMeshGenerator
     filename = ../../../structure/FiberOxOB_2D_ebsd.txt
+    uniform_refine = 2
   []
     parallel_type = DISTRIBUTED
-    uniform_refine = 0
 []
 
 

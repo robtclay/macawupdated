@@ -27,7 +27,7 @@
     elem_type = QUAD4
   []
 
-  uniform_refine = 2
+  uniform_refine = 0
 []
 
 #------------------------------------------------------------------------------#
@@ -1325,17 +1325,17 @@
   type = Transient
 
   nl_max_its = 12
-  nl_rel_tol = 1.0e-8
+  nl_rel_tol = 1.0e-6
 
-  nl_abs_tol = 1e-10
+  nl_abs_tol = 1e-5
 
   l_max_its = 30
-  l_tol = 1.0e-6
+  l_tol = 1.0e-4
 
   start_time = 0.0
 
   dtmin = 1e-6
-  dtmax = 1e4
+  # dtmax = 1e4
 
   #verbose = true
 

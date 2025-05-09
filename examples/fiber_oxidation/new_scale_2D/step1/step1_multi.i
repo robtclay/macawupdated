@@ -7,26 +7,38 @@
 # fibers. The diffuse interface is simulataneously generated from the sharp
 # binary image used as the initial condition for the fibers.
 #------------------------------------------------------------------------------#
-lo = 2.1524e-04  # micron 
-# to = 4.3299e-04 # s 
-# eo = 3.9 # eV
+
+lo = 2.1524e-05  # micron 
+to = 4.3299e-04 # s 
+eo = 3.9 # eV
 # Av = 6.02214076e23 # avogadro's number
-# ev = 6.242e18 #conversion from J to EV
+ev = 6.242e18 #conversion from J to EV	
+
 #------------------------------------------------------------------------------#
 [Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
+  [gen]
+    type = GeneratedMeshGenerator
+    dim = 2
+
+    xmin = 0
+    xmax = 557280 # 120 microns
+    nx = 120
+
+    ymin = 0
+    ymax = 557280 # 120 microns
+    ny = 120
+
+    elem_type = QUAD4
   []
-    parallel_type = DISTRIBUTED
-    uniform_refine = 0
+
+  uniform_refine = 2
 []
+
 #------------------------------------------------------------------------------#
 [GlobalParams]
   # Interface thickness from Grand Potential material
   # Total interface thickness
-  width = ${fparse 1/lo} #4644 # int_width 1 micron, half of the total width
+  width = 4644 # int_width 1 micron, half of the total width
 
   # [Materials] stuff during initialization
   derivative_order = 2
@@ -37,38 +49,46 @@ lo = 2.1524e-04  # micron
 
 #------------------------------------------------------------------------------#
 [Functions]
+  # IMAGE READER
+  [ic_func_eta_f]
+    type = ImageFunction
+    file = ../../../Fibers/multi_simple.tif
+    threshold = 170
+    upper_value = 0.0 # white is zero
+    lower_value = 1.0 # black is one
+  []
+  [ic_func_eta_g]
+    type = ImageFunction
+    file = ../../../Fibers/multi_simple.tif
+    threshold = 170
+    upper_value = 1.0 # white is one
+    lower_value = 0.0 # black is zero
+  []
+
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    expression = '(1000-2000)/${fparse 120/lo} * x + 2000'
+    expression = '(1000-2000)/464400 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
-    expression = '(1000-2000)/${fparse 10/lo} * y + 2000'
+    expression = '(1000-2000)/464400 * y + 2000'
   []
 []
 
-[UserObjects]
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
-  []
-[]
 
 #------------------------------------------------------------------------------#
 [ICs]
-  [IC_eta_g]
-    # Initializes the variable info from the ebsd data
-    type = ReconPhaseVarIC
-    ebsd_reader = ebsd
-    phase = 1
-    variable = eta_g
-  []
+  # IMAGE READER
   [IC_eta_f]
-    type = ReconPhaseVarIC
-    ebsd_reader = ebsd
-    phase = 2
+    type = FunctionIC
     variable = eta_f
+    function = ic_func_eta_f
+  []
+  [IC_eta_g]
+    type = FunctionIC
+    variable = eta_g
+    function = ic_func_eta_g
   []
 
   [IC_Tx]
@@ -148,10 +168,6 @@ lo = 2.1524e-04  # micron
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0.0
-  []
-  [PHASE]
-    family = MONOMIAL
-    order = CONSTANT
   []
 []
 
@@ -386,8 +402,6 @@ lo = 2.1524e-04  # micron
     sigma = '0.01'
     kappa_name = kappa
     mu_name = mu
-    # width = 4644
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -398,7 +412,6 @@ lo = 2.1524e-04  # micron
     coupled_variables = 'eta_f eta_g'
 
     expression = 'eta_f + eta_g'
-    outputs = exodus
   []
 
   [sum_h]
@@ -409,7 +422,6 @@ lo = 2.1524e-04  # micron
     expression = 'h_f + h_g'
 
     material_property_names = 'h_f h_g'
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -421,7 +433,7 @@ lo = 2.1524e-04  # micron
     expression = 'h_f*100.0 + h_g*1.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
-    outputs = exodus
+
   []
 
   [th_cond_AF]
@@ -432,7 +444,6 @@ lo = 2.1524e-04  # micron
     expression = 'h_f*100.0 + h_g*0.0'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
-    outputs = exodus
   []
 
   #------------------------------------------------------------------------------#
@@ -450,7 +461,6 @@ lo = 2.1524e-04  # micron
     correct_negative_directions = false
     angle_tol = 60
     norm_tol = 1
-    outputs = exodus
   []
 
   # MobilityRotationVector calculates the transformed tensor given the fiber direction
@@ -459,16 +469,20 @@ lo = 2.1524e-04  # micron
     M_A = thcond_f
     direction_vector = fiber_direction_AF
     M_name = rot_thcond_f
-    outputs = exodus
   []
   #----------------------------------------------------------------------------#
   # Thermal conductivity
   # In step 1, the value with the longitudinal thermal conductivity is ii
   [thcond_f]
     type = ConstantAnisotropicMobility
-    tensor = '7.4576e+06      0             0
-              0               7.4576e+04    0
-              0               0             7.4576e+04'
+    tensor = '${fparse 50*lo*ev*to/(1e6*eo)}    0                                   0
+              0                                 ${fparse 0.5*lo*ev*to/(1e6*eo)}     0
+              0                                 0                                   ${fparse 0.5*lo*ev*to/(1e6*eo)}'
+
+    # type = ConstantAnisotropicMobility
+    # tensor = '7.4576e+06      0             0
+    #           0               7.4576e+04    0
+    #           0               0             7.4576e+04'
 
     M_name = thcond_f
   []
@@ -492,7 +506,6 @@ lo = 2.1524e-04  # micron
     tensors = 'rot_thcond_f   thcond_g'
 
     M_name = thcond_aniso
-    outputs = exodus
   []
 
 [] # End of Materials
@@ -561,7 +574,7 @@ lo = 2.1524e-04  # micron
   start_time = 0.0
   end_time = 200
 
-  dtmin = 1e-10
+  dtmin = 1e-6
 
   # verbose = true
 
@@ -641,10 +654,6 @@ lo = 2.1524e-04  # micron
 
   [exodus]
     type = Exodus
-  []
-
-  [csv]
-    type = CSV
   []
 
   [pgraph]

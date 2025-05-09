@@ -16,9 +16,9 @@
   [ebsd_mesh]
     type = EBSDMeshGenerator
     filename = ../../../structure/FiberOxOB_2D_ebsd.txt
+    pre_refine = 1
   []
     parallel_type = DISTRIBUTED
-    uniform_refine = 2
 []
 
 
@@ -1348,12 +1348,12 @@
 
   scheme = bdf2
 
-  [Adaptivity]
-    # interval = 2
-    refine_fraction = 0.80
-    coarsen_fraction = 0.05
-    max_h_level = 1
-  []
+  # [Adaptivity]
+  #   # interval = 2
+  #   refine_fraction = 0.6
+  #   coarsen_fraction = 0.9
+  #   max_h_level = 1
+  # []
 
   [TimeStepper]
     type = IterationAdaptiveDT
