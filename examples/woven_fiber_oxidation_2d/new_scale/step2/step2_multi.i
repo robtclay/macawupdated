@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # Carbon Fiber Oxidation
 # Nondimensional parameters with convertion factors:
-lo = 2.1524e-05  # micron 
+lo = 2.3973586e-03 #2.1524e-05  # micron 
 to = 4.3299e-04 # s 
 eo = 3.9 # eV
 Av = 6.02214076e23 # avogadro's number
@@ -1015,8 +1015,8 @@ ev = 6.242e18 #conversion from J to EV
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre                            Q               k_Boltz     K_tol'
-    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}  5.3772e-01      8.6173e-5    1e-4' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'
+    prop_names  = 'K_pre                             Q               k_Boltz      K_tol'
+    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-10' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'
   []
 
   #----------------------------------------------------------------------------#
@@ -1048,7 +1048,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= '4/3 * 1/int_width * alpha * Ave_K_CO'
 
     constant_names        = 'alpha'
-    constant_expressions  = '${fparse 9.6114e3*eo*(10^-3)/(lo)}'
+    constant_expressions  = '${fparse 9.6114e3*eo*(1e-4)/(lo)}' #17415002.1524e-0500'  #((lo/(2.1524e-04))^3)
 
     material_property_names = 'int_width Ave_K_CO'
   []
@@ -1234,7 +1234,7 @@ ev = 6.242e18 #conversion from J to EV
     coupled_variables = 'eta_f eta_g'
 
     expression= 'eta_f + eta_g'
-    outputs = 'csv'
+    # outputs = 'csv'
   []
 
   [sum_x]
@@ -1244,7 +1244,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= 'x_c + x_o + x_co'
 
     material_property_names = 'x_c x_o x_co'
-    outputs = 'csv'
+    # outputs = 'csv'
   []
 
   [x_V]
@@ -1254,7 +1254,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= '1 - (x_c + x_o + x_co)'
 
     material_property_names = 'x_c x_o x_co'
-    outputs = 'csv'
+    # outputs = 'csv'
   []
 
   #------------------------------------------------------------------------------#
@@ -1332,7 +1332,7 @@ ev = 6.242e18 #conversion from J to EV
   nl_max_its = 12
   nl_rel_tol = 1.0e-6
 
-  nl_abs_tol = 1e-5
+  # nl_abs_tol = 1e-5
 
   l_max_its = 30
   l_tol = 1.0e-4
@@ -1358,7 +1358,7 @@ ev = 6.242e18 #conversion from J to EV
 
   [TimeStepper]
     type = IterationAdaptiveDT
-    dt = 1024
+    dt = 1
 
     # growth_factor = 1.2
     # cutback_factor = 0.83333

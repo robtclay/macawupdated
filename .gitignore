@@ -96,6 +96,7 @@ compile_commands.json
 build
 **/results/*
 **/step1_multi_out_cp/*
+**/structure/*
 
 
 # Allow certain files in gold directories

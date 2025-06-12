@@ -7,7 +7,7 @@
 # fibers. The diffuse interface is simulataneously generated from the sharp
 # binary image used as the initial condition for the fibers.
 #------------------------------------------------------------------------------#
-lo = 2.1524e-05  #2.1524e-04  # micron 
+lo = 2.3973586e-03 #2.3973586e-3  #2.1524e-04  # micron 
 to = 4.3299e-04 # s 
 eo = 3.9 # eV
 # Av = 6.02214076e23 # avogadro's number

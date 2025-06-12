@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=2d_fiber_ox_adaptmaxh1
 #SBATCH --partition=hpg2-compute
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --ntasks-per-node=32
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=124gb
@@ -13,6 +13,7 @@
 #SBATCH --mail-user=robtclay@ufl.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --account=michael.tonks
+#SBATCH --qos=michael.tonks-b
 
 
 

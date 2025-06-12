@@ -7,7 +7,11 @@
 # fibers. The diffuse interface is simulataneously generated from the sharp
 # binary image used as the initial condition for the fibers.
 #------------------------------------------------------------------------------#
-
+lo = 2.3973586e-03 #2.1524e-05  #2.1524e-04  # micron 
+to = 4.3299e-04 # s 
+eo = 3.9 # eV
+# Av = 6.02214076e23 # avogadro's number
+ev = 6.242e18 #conversion from J to EV								  
 #------------------------------------------------------------------------------#
 
 [Mesh]
@@ -15,9 +19,10 @@
   [ebsd_mesh]
     type = EBSDMeshGenerator
     filename = ../structure/FiberOxOB_3D_ebsd.txt
+    pre_refine = 2
   []
     parallel_type = DISTRIBUTED
-    uniform_refine = 0
+	
 []
 #------------------------------------------------------------------------------#
 [GlobalParams]
@@ -37,7 +42,7 @@
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    expression = '(1000-2000)/464400 * x + 2000'
+    expression = '(1000-2000)/1393200 * x + 2000'
   []
   [ic_func_Ty]
     type = ParsedFunction
@@ -45,7 +50,7 @@
   []
   [ic_func_Tz]
     type = ParsedFunction
-    expression = '(1000-2000)/464400 * z + 2000'
+    expression = '(1000-2000)/116100 * z + 2000'
   []
 []
 
@@ -480,9 +485,12 @@
   # In step 1, the value with the longitudinal thermal conductivity is ii
   [thcond_f]
     type = ConstantAnisotropicMobility
-    tensor = '7.4576e+06      0             0
-              0               7.4576e+04    0
-              0               0             7.4576e+04'
+    tensor = '${fparse 50*lo*ev*to/(1e6*eo)}    0                                   0
+              0                                 ${fparse 0.5*lo*ev*to/(1e6*eo)}     0
+              0                                 0                                   ${fparse 0.5*lo*ev*to/(1e6*eo)}'
+    # tensor = '7.4576e+06      0             0
+    #           0               7.4576e+04    0
+    #           0               0             7.4576e+04'
 
     M_name = thcond_f
   []
@@ -699,6 +707,10 @@
   [exodus]
     type = Exodus
   []
+
+	   
+			  
+	
 
   [pgraph]
     type = PerfGraphOutput

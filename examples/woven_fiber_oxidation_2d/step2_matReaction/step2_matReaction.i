@@ -1048,8 +1048,8 @@ ev = 6.242e18 #conversion from J to EV
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre                              Q               k_Boltz     K_tol'  
-    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-1'  #6.8191e-01
+    prop_names  = 'K_pre                                    Q                     k_Boltz     K_tol'  
+    prop_values = '${fparse 6.35150327e-08*to/(lo^3)}    -1.62742301e-01       8.6173e-5    1e-4'  #6.8191e-01
   []
 
   #----------------------------------------------------------------------------#
