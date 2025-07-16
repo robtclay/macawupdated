@@ -19,9 +19,12 @@ echo ${SLURM_JOB_NODELIST}
 MOOSE=/blue/michael.tonks/robtclay/bigprojects/macawupdated/macaw-opt
 OUTPUT=/blue/michael.tonks/robtclay/bigprojects/macawupdated/examples/char_oxidation/step3
 
+export OMPI_MCA_coll_hcoll_enable=0
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/slurm/lib64/libpmi.so
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/pmix/5.6.0/lib
 export CC=mpicc CXX=mpicxx FC=mpif90 F90=mpif90 F77=mpif77
 module purge
-module load ufrc mkl/2023.2.0 gcc/12.2.0 openmpi/4.1.6 python/3.11 cmake/3.26.4
+module load ufrc mkl/2025.1.0 gcc/14.2.0 openmpi/5.0.7 python/3.12 cmake/3.30.5
 
 cd $OUTPUT
-srun --mpi=pmix_v3 $MOOSE -i $OUTPUT/step3_char_transient.i
+srun --mpi=pmix_v5 $MOOSE -i $OUTPUT/step3_char_transient.i

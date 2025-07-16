@@ -18,9 +18,9 @@ lo = 2.1524e-04  # micron
   [ebsd_mesh]
     type = EBSDMeshGenerator
     filename = ../structure/FiberOxOB_2D_ebsd.txt
+    pre_refine = 0
   []
-    parallel_type = DISTRIBUTED
-    uniform_refine = 0
+  parallel_type = DISTRIBUTED
 []
 #------------------------------------------------------------------------------#
 [GlobalParams]
