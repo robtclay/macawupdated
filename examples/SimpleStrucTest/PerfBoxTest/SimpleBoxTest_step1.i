@@ -17,12 +17,30 @@ ev = 6.242e18 #conversion from J to EV
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = ../../structure/FiberOxOB_2D_ebsd.txt
+    filename = SimpleBoxTest_EBSD.txt
     pre_refine = 0
   []
     parallel_type = DISTRIBUTED
-    
 []
+
+# [Mesh]
+#   [gen]
+#     type = GeneratedMeshGenerator
+#     dim = 2
+
+#     xmin = 0
+#     xmax = 139320 # 120 microns
+#     nx = 30
+
+#     ymin = 0
+#     ymax = 139320 # 120 microns
+#     ny = 30
+
+#     elem_type = QUAD4
+#   []
+
+#   uniform_refine = 2
+# []
 #------------------------------------------------------------------------------#
 [GlobalParams]
   # Interface thickness from Grand Potential material
@@ -41,7 +59,7 @@ ev = 6.242e18 #conversion from J to EV
   # Temperature IC
   [ic_func_Tx]
     type = ParsedFunction
-    expression = '(1000-2000)/1673460 * x + 2000' #15518530 ${fparse 120/lo} 
+    expression = '(1000-2000)/1673460 * x + 2000' #s15518530 ${fparse 120/lo} 
   []
   [ic_func_Ty]
     type = ParsedFunction
@@ -565,7 +583,6 @@ ev = 6.242e18 #conversion from J to EV
 
   start_time = 0.0
   end_time = 200
-
 
   dtmin = 1e-10
 

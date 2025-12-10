@@ -5,7 +5,7 @@ lo = 2.3973586e-03 #2.1524e-05  # micron
 to = 4.3299e-04 # s 
 eo = 3.9 # eV
 Av = 6.02214076e23 # avogadro's number
-ev = 6.242e18 #conversion from J to EV										
+ev = 6.242e18 #conversion from J to EV								  
 # This file reads the IC of the fibers and gas order parameters from step1,
 # as well as the anisotropic thermal conductivity tensor. In this final step,
 # we perform the phase-field carbon fiber oxidation fully coupled with heat
@@ -13,21 +13,39 @@ ev = 6.242e18 #conversion from J to EV
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-[Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../structure/FiberOxOB_2D_ebsd.txt
-    pre_refine = 2				  
-  []
-    parallel_type = DISTRIBUTED
-[]
+# [Mesh]
+#   # Create a mesh representing the EBSD data
+#   [ebsd_mesh]
+#     type = EBSDMeshGenerator
+#     filename = SimpleBoxTest_EBSD.txt
+#     pre_refine = 0
+#   []
+#     parallel_type = DISTRIBUTED
+# []
 
+[Mesh]
+  [gen]
+    type = DistributedRectilinearMeshGenerator
+    dim = 2
+
+    xmin = 0
+    xmax = 11429 # 120 microns
+    nx = 16
+
+    ymin = 100000
+    ymax = 138773 # 120 microns
+    ny = 52
+
+    elem_type = QUAD4
+  []
+
+  uniform_refine = 2
+[]
 
 #------------------------------------------------------------------------------#
 [GlobalParams]
   # Interface thickness for the Grand Potential material
-  width = 4644 # int_width 1 micron, half of the total width
+  width = 4644 #${fparse 1/lo} # 24247 #48494 # int_width 5 micron, half of the total width
 
   # [Materials] stuff during initialization
   derivative_order = 2
@@ -38,25 +56,24 @@ ev = 6.242e18 #conversion from J to EV
 
 #------------------------------------------------------------------------------#
 [UserObjects]
-  # [solution_uo]
-  #   type = SolutionUserObject
-			   
-  #   mesh = ../step1/step1_multi_exodus.e
-  #   system_variables = 'eta_f eta_g
-  #                       var_00 var_01 var_02
-  #                       var_10 var_11 var_12
-  #                       var_20 var_21 var_22'
-  #   timestep = 'LATEST'
-  # []
+  [solution_uo]
+    type = SolutionUserObject
+    mesh = boxresults/SimpleBoxTest_step2.e
+    system_variables = 'eta_f eta_g
+                        var_00 var_01 var_02
+                        var_10 var_11 var_12
+                        var_20 var_21 var_22'
+    timestep = 'LATEST'
+  []
 
   [detect_fiber]
     type = Terminator
     expression = 'int_h_f < 1e6'
   []
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
-  []
+  # [ebsd]
+  #   # Read in the EBSD data. Uses the filename given in the mesh block.
+  #   type = EBSDReader
+  # []
 []
 
 #------------------------------------------------------------------------------#
@@ -88,7 +105,7 @@ ev = 6.242e18 #conversion from J to EV
     expression = '(T_top - T_bottom)/l_domain * y + T_bottom'
 
     symbol_names = 'T_bottom  T_top   l_domain'
-    symbol_values = '2988      3000    139455' # 12 K over 120 microns
+    symbol_values = '2988      3000    139455' #${fparse 30/lo}' #1551853' # 12 K over 120 microns
   []
 
   [T_fiber_func]
@@ -97,79 +114,77 @@ ev = 6.242e18 #conversion from J to EV
     symbol_names = 'T_fiber_pp int_h_f'
     symbol_values = 'T_fiber_pp int_h_f'
   []
+    [ic_func_eta_f]
+    type = SolutionFunction
+    from_variable = eta_f
+    solution = solution_uo
+  []
+  [ic_func_eta_g]
+    type = SolutionFunction
+    from_variable = eta_g
+    solution = solution_uo
+  []
 
-  # [ic_func_eta_f]
-  #   type = SolutionFunction
-  #   from_variable = eta_f
-  #   solution = solution_uo
-  # []
-  # [ic_func_eta_g]
-  #   type = SolutionFunction
-  #   from_variable = eta_g
-  #   solution = solution_uo
-  # []
+  [ic_func_00]
+    type = SolutionFunction
+    from_variable = var_00
+    solution = solution_uo
+  []
+  [ic_func_01]
+    type = SolutionFunction
+    from_variable = var_01
+    solution = solution_uo
+  []
+  [ic_func_02]
+    type = SolutionFunction
+    from_variable = var_02
+    solution = solution_uo
+  []
 
-  # [ic_func_00]
-  #   type = SolutionFunction
-  #   from_variable = var_00
-  #   solution = solution_uo
-  # []
-  # [ic_func_01]
-  #   type = SolutionFunction
-  #   from_variable = var_01
-  #   solution = solution_uo
-  # []
-  # [ic_func_02]
-  #   type = SolutionFunction
-  #   from_variable = var_02
-  #   solution = solution_uo
-  # []
+  [ic_func_10]
+    type = SolutionFunction
+    from_variable = var_10
+    solution = solution_uo
+  []
+  [ic_func_11]
+    type = SolutionFunction
+    from_variable = var_11
+    solution = solution_uo
+  []
+  [ic_func_12]
+    type = SolutionFunction
+    from_variable = var_12
+    solution = solution_uo
+  []
 
-  # [ic_func_10]
-  #   type = SolutionFunction
-  #   from_variable = var_10
-  #   solution = solution_uo
-  # []
-  # [ic_func_11]
-  #   type = SolutionFunction
-  #   from_variable = var_11
-  #   solution = solution_uo
-  # []
-  # [ic_func_12]
-  #   type = SolutionFunction
-  #   from_variable = var_12
-  #   solution = solution_uo
-  # []
-
-  # [ic_func_20]
-  #   type = SolutionFunction
-  #   from_variable = var_20
-  #   solution = solution_uo
-  # []
-  # [ic_func_21]
-  #   type = SolutionFunction
-  #   from_variable = var_21
-  #   solution = solution_uo
-  # []
-  # [ic_func_22]
-  #   type = SolutionFunction
-  #   from_variable = var_22
-  #   solution = solution_uo
-  # []
+  [ic_func_20]
+    type = SolutionFunction
+    from_variable = var_20
+    solution = solution_uo
+  []
+  [ic_func_21]
+    type = SolutionFunction
+    from_variable = var_21
+    solution = solution_uo
+  []
+  [ic_func_22]
+    type = SolutionFunction
+    from_variable = var_22
+    solution = solution_uo
+  []
 []
-
 #------------------------------------------------------------------------------#
 [ICs]
-  # [IC_eta_f]
-  #   type = FunctionIC
-  #   variable = eta_f
-  #   function = ic_func_eta_f
-  # []
-  # [IC_eta_g]
-  #   type = FunctionIC
-  #   variable = eta_g
-  #   function = ic_func_eta_g
-  # []
+  [IC_eta_f]
+    type = FunctionIC
+    variable = eta_f
+    function = ic_func_eta_f
+  []
+  [IC_eta_g]
+    type = FunctionIC
+    variable = eta_g
+    function = ic_func_eta_g
+  []
 
   [IC_w_c]
     type = ConstantIC
@@ -193,67 +208,66 @@ ev = 6.242e18 #conversion from J to EV
     function = ic_func_T
   []
 
-  # [IC_00]
-  #   type = FunctionIC
-  #   variable = var_00
-  #   function = ic_func_00
-  # []
-  # [IC_01]
-  #   type = FunctionIC
-  #   variable = var_01
-  #   function = ic_func_01
-  # []
-  # [IC_02]
-  #   type = FunctionIC
-  #   variable = var_02
-  #   function = ic_func_02
-  # []
+  [IC_00]
+    type = FunctionIC
+    variable = var_00
+    function = ic_func_00
+  []
+  [IC_01]
+    type = FunctionIC
+    variable = var_01
+    function = ic_func_01
+  []
+  [IC_02]
+    type = FunctionIC
+    variable = var_02
+    function = ic_func_02
+  []
 
-  # [IC_10]
-  #   type = FunctionIC
-  #   variable = var_10
-  #   function = ic_func_10
-  # []
-  # [IC_11]
-  #   type = FunctionIC
-  #   variable = var_11
-  #   function = ic_func_11
-  # []
-  # [IC_12]
-  #   type = FunctionIC
-  #   variable = var_12
-  #   function = ic_func_12
-  # []
+  [IC_10]
+    type = FunctionIC
+    variable = var_10
+    function = ic_func_10
+  []
+  [IC_11]
+    type = FunctionIC
+    variable = var_11
+    function = ic_func_11
+  []
+  [IC_12]
+    type = FunctionIC
+    variable = var_12
+    function = ic_func_12
+  []
 
-  # [IC_20]
-  #   type = FunctionIC
-  #   variable = var_20
-  #   function = ic_func_20
-  # []
-  # [IC_21]
-  #   type = FunctionIC
-  #   variable = var_21
-  #   function = ic_func_21
-  # []
-  # [IC_22]
-  #   type = FunctionIC
-  #   variable = var_22
-  #   function = ic_func_22
-  # []
+  [IC_20]
+    type = FunctionIC
+    variable = var_20
+    function = ic_func_20
+  []
+  [IC_21]
+    type = FunctionIC
+    variable = var_21
+    function = ic_func_21
+  []
+  [IC_22]
+    type = FunctionIC
+    variable = var_22
+    function = ic_func_22
+  []
 []
-
 #------------------------------------------------------------------------------#
 [AuxVariables]
-  [./total_energy]
+  [total_energy]
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0
-  [../]
-  [./omega_inter]
+  []
+  [omega_inter]
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0
-  [../]
+  []
 
   [T_fiber_var]
     order = CONSTANT
@@ -448,7 +462,6 @@ ev = 6.242e18 #conversion from J to EV
     mask = energy_CO
     coupled_variables = 'w_c w_o eta_f eta_g'
   []
-
   #----------------------------------------------------------------------------#
   # eta_f kernels
   [AC_f_bulk]
@@ -457,7 +470,7 @@ ev = 6.242e18 #conversion from J to EV
     v = 'eta_g'
     gamma_names = 'gamma_fg'
     mob_name = L
-    # args = 'T'
+    # coupled_variables = 'T_fiber_var'
   []
 
   [AC_f_sw]
@@ -490,7 +503,7 @@ ev = 6.242e18 #conversion from J to EV
     v = 'eta_f'
     gamma_names = 'gamma_fg'
     mob_name = L
-    # args = 'T'
+    # coupled_variables = 'T_fiber_var'
   []
 
   [AC_g_sw]
@@ -678,6 +691,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= 'if(rho_c>K_tol&rho_o>K_tol,K_CO*rho_c*rho_o,0)'
 
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+    outputs = exodus
   []
 
   [CO_reaction_consumption]
@@ -706,6 +720,37 @@ ev = 6.242e18 #conversion from J to EV
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
   []
 
+  #----------------------------------------------------------------------------#
+  # [concentration_C]
+  #   type = DerivativeParsedMaterial
+  #   property_name = concentration_C
+  #   coupled_variables = 'w_c w_o eta_f eta_g T'
+
+  #   expression= 'if(rho_c>K_tol&rho_o>K_tol,rho_c,0)'
+
+  #   material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+  #   outputs = exodus
+  # []
+  # [concentration_O]
+  #   type = DerivativeParsedMaterial
+  #   property_name = concentration_O
+  #   coupled_variables = 'w_c w_o eta_f eta_g T'
+
+  #   expression= 'if(rho_c>K_tol&rho_o>K_tol,rho_o,0)'
+
+  #   material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+  #   outputs = exodus
+  # []
+  # [concentration_C_surf]
+  #   type = DerivativeParsedMaterial
+  #   property_name = concentration_C_surf
+  #   coupled_variables = 'w_c w_o eta_f eta_g T'
+
+  #   expression= 'if(rho_c>K_tol&rho_o>K_tol,rho_c*eta_f^2*eta_g^2*16,0)'
+
+  #   material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
+  #   outputs = exodus
+  # []
   #----------------------------------------------------------------------------#
   # Switching functions
   [switch_f]
@@ -825,6 +870,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= 'h_f*rho_c_f + h_g*rho_c_g'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c)'
+    outputs = exodus
   []
 
   [x_c]
@@ -1013,12 +1059,25 @@ ev = 6.242e18 #conversion from J to EV
   []
 
   #----------------------------------------------------------------------------#
+  # [K_pre]
+  #   type = DerivativeParsedMaterial
+  #   property_name = K_pre
+  #   coupled_variables = 'eta_f eta_g'
+
+  #   expression = 'M_K*eta_f^2*eta_g^2*K_pre_char'
+
+  #   constant_names = 'M_K'
+  #   constant_expressions = '20.816208'
+
+  #   material_property_names = 'K_pre_char'
+  # []
+
   # Reaction rate params
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre                             Q               k_Boltz      K_tol'
-    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-10' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'
+    prop_names  = 'K_pre                                            Q                                k_Boltz      K_tol'
+    prop_values = '${fparse 8.08489251e-07 *(1e6)^3*to/(Av*lo^3)}   ${fparse -1.75530415e-01 *ev/Av}  8.6173e-5    1e-4' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'   # ${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01  
   []
 
   #----------------------------------------------------------------------------#
@@ -1027,7 +1086,7 @@ ev = 6.242e18 #conversion from J to EV
     type = GenericConstantMaterial
 
     prop_names = 'int_width'
-    prop_values = 4644 #'${fparse 1/lo}' #'24247' # eta's width
+    prop_values = 4644 #'${fparse 1/lo}'#4644' #'24247' # eta's width
   []
 
   #----------------------------------------------------------------------------#
@@ -1050,7 +1109,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= '4/3 * 1/int_width * alpha * Ave_K_CO'
 
     constant_names        = 'alpha'
-    constant_expressions  = '${fparse 9.6114e3*eo*(1e-4)/(lo)}' #   17415002.1524e-0500'  #((lo/(2.1524e-04))^3)
+    constant_expressions  = '${fparse 9.6114e3*eo*(15)/(lo)}'   # s143c4b02.1524e-0500'  ((lo/(2.1524e-04))^3)
 
     material_property_names = 'int_width Ave_K_CO'
   []
@@ -1074,7 +1133,7 @@ ev = 6.242e18 #conversion from J to EV
   [params]
     type = GenericConstantMaterial
     prop_names = 'To     k_b        			 Va'
-    prop_values = '2000  ${fparse 8.6173e-5/eo}  ${fparse 9.97e-12/lo^3}'
+    prop_values = '3000  ${fparse 8.6173e-5/eo}  ${fparse 9.97e-12/lo^3}'
   []
 
   [formation_energies]
@@ -1180,16 +1239,22 @@ ev = 6.242e18 #conversion from J to EV
 
     M_name = thcond_f
   []
-
+  # [thcond_f]
+  #   type = ConstantAnisotropicMobility
+  #   tensor = '${fparse 50*lo*ev*to/(1e6*eo)}    0                                   0
+  #             0                                 ${fparse 0.5*lo*ev*to/(1e6*eo)}     0
+  #             0                                 0                                   ${fparse 0.5*lo*ev*to/(1e6*eo)}'
+  #   M_name = thcond_f  
+  # []
   [thcond_g]
     type = ConstantAnisotropicMobility
-																							 
-																							 
-																															  
-
     tensor = '${fparse 0.18*lo*ev*to/(1e6*eo)}        0                                     0
               0                                       ${fparse 0.18*lo*ev*to/(1e6*eo)}      0
               0                                       0                                     ${fparse 0.18*lo*ev*to/(1e6*eo)} '
+
+    # tensor = '2.6501e+04      0             0
+    #           0               2.6501e+04    0
+    #           0               0             2.6501e+04'
 
     M_name = thcond_g
   []
@@ -1227,7 +1292,31 @@ ev = 6.242e18 #conversion from J to EV
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
-  
+  #------------------------------------------------------------------------------#
+  # Surface Area
+  [Surface_Area]
+    type = ParsedMaterial
+    property_name = Surface_Area
+    coupled_variables = 'eta_f eta_g'
+    expression = 'eta_f^2 * eta_g^2 * 16'
+    outputs = 'exodus'
+  []
+  [Surface_Concentration_C] 
+    type = ParsedMaterial
+    property_name = Surface_Concentration_C
+    coupled_variables = 'eta_f eta_g w_c'
+    expression = '(h_f*rho_c_f + h_g*rho_c_g)*(eta_f^2 * eta_g^2 * 20.816208)* 1/11429 *1/(int_width*2)*  ${fparse 1/Av *(1e6/lo)^2}'  #1/(int_width*2)*   #${fparse (1e6/lo)^3 * 1/Av*1/(lo*1e-6)}  (int_width*2) * 
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c) int_width'
+    outputs = 'exodus'
+  []
+    [Surface_Concentration_o] 
+    type = ParsedMaterial
+    property_name = Surface_Concentration_o
+    coupled_variables = 'eta_f eta_g w_o'
+    expression = '(h_f*rho_o_f + h_g*rho_o_g)*(eta_f^2 * eta_g^2 * 20.816208)* 1/11429 *1/(int_width*2)*  ${fparse 1/Av *(1e6/lo)^2}'  #1/(int_width*2)*   #${fparse (1e6/lo)^3 * 1/Av*1/(lo*1e-6)}  (int_width*2) * 
+    material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_o_f(w_o) rho_o_g(w_o) int_width'
+    outputs = 'exodus'
+  []
   #------------------------------------------------------------------------------#
   # Conservation check
   [sum_eta]
@@ -1236,7 +1325,7 @@ ev = 6.242e18 #conversion from J to EV
     coupled_variables = 'eta_f eta_g'
 
     expression= 'eta_f + eta_g'
-					 
+    # outputs = 'csv'
   []
 
   [sum_x]
@@ -1246,7 +1335,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= 'x_c + x_o + x_co'
 
     material_property_names = 'x_c x_o x_co'
-					 
+    # outputs = 'csv'
   []
 
   [x_V]
@@ -1256,7 +1345,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= '1 - (x_c + x_o + x_co)'
 
     material_property_names = 'x_c x_o x_co'
-					 
+    # outputs = 'csv'
   []
 
   #------------------------------------------------------------------------------#
@@ -1295,15 +1384,33 @@ ev = 6.242e18 #conversion from J to EV
     type = DirichletBC
     variable = 'T'
     boundary = 'top'
-    value = '2000'
+    value = '3000'
   []
 
   [fixed_T_bottom]
     type = DirichletBC
     variable = 'T'
     boundary = 'bottom'
-    value = '1988'
+    value = '2988'
   []
+  # [carbon]
+  #   type = DirichletBC
+  #   variable = 'w_c'
+  #   boundary = 'top'
+  #   value = '0'
+  # []
+  # [fixed_etaf_bottom]
+  #   type = DirichletBC
+  #   variable = 'eta_f'
+  #   boundary = 'bottom'
+  #   value = '1'
+  # []
+  #   [fixed_etag_bottom]
+  #   type = DirichletBC
+  #   variable = 'eta_g'
+  #   boundary = 'bottom'
+  #   value = '0'
+  # []
 []
 
 #------------------------------------------------------------------------------#
@@ -1319,84 +1426,6 @@ ev = 6.242e18 #conversion from J to EV
   []
 []
 
-[MultiApps]
-  [fiber_direction]
-    type = FullSolveMultiApp
-    execute_on = initial
-    # positions = '0 0 0'
-    input_files = ../step1/step1_multi.i
-  []
-[]
-
-[Transfers]
-  [eta_f]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = eta_f
-    variable = eta_f
-  []
-  [eta_g]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = eta_g
-    variable = eta_g
-  []
-  [var_00]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_00
-    variable = var_00
-  []
-  [var_01]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_01
-    variable = var_01
-  []
-  [var_02]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_02
-    variable = var_02
-  []
-  [var_10]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_10
-    variable = var_10
-  []
-  [var_11]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_11
-    variable = var_11
-  []
-  [var_12]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_12
-    variable = var_12
-  []
-  [var_20]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_20
-    variable = var_20
-  []
-  [var_21]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_21
-    variable = var_21
-  []
-  [var_22]
-    type = MultiAppCopyTransfer
-    from_multi_app = fiber_direction
-    source_variable = var_22
-    variable = var_22
-  []
-[]
-
 #---------------------------------------------------------------------------------------------#
 #######  #     #  #######   #####   #     #  #######  ###  #######  #     #  #######  ######
 #         #   #   #        #     #  #     #     #      #   #     #  ##    #  #        #     #
@@ -1408,7 +1437,7 @@ ev = 6.242e18 #conversion from J to EV
 #---------------------------------------------------------------------------------------------#
 [Executioner]
   type = Transient
-  
+
   nl_max_its = 12
   nl_rel_tol = 1.0e-6
 
@@ -1417,14 +1446,15 @@ ev = 6.242e18 #conversion from J to EV
   l_max_its = 30
   l_tol = 1.0e-4
 
-  steady_state_detection = true
-  steady_state_tolerance = 1e-15
-  steady_state_start_time = 1e5	   
+  # steady_state_detection = true
+  # steady_state_tolerance = 1e-15
+  # steady_state_start_time = 1e5
 
   start_time = 0.0
+  # end_time = 8e5
 
   dtmin = 1e-6
-  # dtmax = 1e10
+  dtmax = 1e10
 
   #verbose = true
 
@@ -1436,15 +1466,15 @@ ev = 6.242e18 #conversion from J to EV
 
   scheme = bdf2
 
-  # [Adaptivity]
-  #   interval = 2
-  #   refine_fraction = 0.2
-  #   coarsen_fraction = 0.3
-  #   max_h_level = 1
-  # []
+#  [Adaptivity]
+#     # interval = 2
+#     refine_fraction = 0.8
+#     coarsen_fraction = 0.05
+#     max_h_level = 1
+#   []
   [TimeStepper]
     type = IterationAdaptiveDT
-    dt = 1
+    dt = 262144
 
     # growth_factor = 1.2
     # cutback_factor = 0.83333
@@ -1466,13 +1496,13 @@ ev = 6.242e18 #conversion from J to EV
 #        ####    ####     #
 #------------------------------------------------------------------------------#
 [VectorPostprocessors]
-  # [grain_volumes]
-  #   type = FeatureVolumeVectorPostprocessor
-  #   flood_counter = grain_tracker
-  #   single_feature_per_element = true
-  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
-  #   outputs = none
-  # []
+  [grain_volumes]
+    type = FeatureVolumeVectorPostprocessor
+    flood_counter = grain_tracker
+    single_feature_per_element = true
+    execute_on = 'INITIAL TIMESTEP_END FINAL'
+    outputs = none
+  []
 
   [feature_volumes]
     type = FeatureVolumeVectorPostprocessor
@@ -1577,6 +1607,52 @@ ev = 6.242e18 #conversion from J to EV
     outputs = 'csv'
   []
 
+  # Sum of Surface area
+  [int_Surface_Area]
+    type = ElementIntegralMaterialProperty
+    mat_prop = Surface_Area
+    execute_on = 'INITIAL TIMESTEP_END FINAL'
+
+    allow_duplicate_execution_on_initial = true
+
+    outputs = 'csv exodus console'
+  []
+  [int_Surface_Concentration_C]
+    type = ElementIntegralMaterialProperty
+    mat_prop = Surface_Concentration_C
+    execute_on = 'INITIAL TIMESTEP_END FINAL'
+
+    allow_duplicate_execution_on_initial = true
+
+    outputs = 'csv exodus console'
+  []
+    [int_Surface_Concentration_o]
+    type = ElementIntegralMaterialProperty
+    mat_prop = Surface_Concentration_o
+    execute_on = 'INITIAL TIMESTEP_END FINAL'
+
+    allow_duplicate_execution_on_initial = true
+
+    outputs = 'csv exodus console'
+  []
+  # [int_concentration_C]
+  #   type = ElementIntegralMaterialProperty
+  #   mat_prop = concentration_C
+  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
+
+  #   allow_duplicate_execution_on_initial = true
+
+  #   outputs = 'csv exodus console'
+  # []
+  # [int_concentration_C_surf]
+  #   type = ElementIntegralMaterialProperty
+  #   mat_prop = concentration_C_surf
+  #   execute_on = 'INITIAL TIMESTEP_END FINAL'
+
+  #   allow_duplicate_execution_on_initial = true
+
+  #   outputs = 'csv exodus console'
+  # []
   # Species output
   [int_h_f]
     type = ElementIntegralMaterialProperty
@@ -1688,16 +1764,18 @@ ev = 6.242e18 #conversion from J to EV
     mem_units = megabytes
     value_type = max_process
   []
+  # [area]
+  #   type = LevelSetVolume
+  #   threshold = 0.5
+  #   variable = phi
+  #   location = outside
+  #   execute_on = 'initial timestep_end'
+  # []
 []
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./results/step2_multi_out
-  [check]
-    type = Checkpoint
-    num_files = 4
-    # use_displaced = True
-  []
+  file_base = ./boxresults/SimpleBoxTest_step3
 
   [console]
     type = Console
@@ -1707,13 +1785,13 @@ ev = 6.242e18 #conversion from J to EV
 
   [exodus]
     type = Exodus
-    append_date = True
-    time_step_interval = 3
+    # append_date = True
+    # time_step_interval = 3
   []
 
   [csv]
     type = CSV
-    append_date = True
+    # append_date = True
   []
 
   [pgraph]
@@ -1726,7 +1804,7 @@ ev = 6.242e18 #conversion from J to EV
 []
 
 #------------------------------------------------------------------------------#
-# [Debug]
-#   show_var_residual_norms = true
-#   show_var_residual = 'w_c w_o w_co eta_f eta_g T'
-# []
+[Debug]
+  show_var_residual_norms = true
+  show_var_residual = 'w_c w_o w_co eta_f eta_g T'
+[]

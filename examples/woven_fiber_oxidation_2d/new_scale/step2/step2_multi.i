@@ -13,16 +13,33 @@ ev = 6.242e18 #conversion from J to EV
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
+# [Mesh]
+#   # Create a mesh representing the EBSD data
+#   [ebsd_mesh]
+#     type = EBSDMeshGenerator
+#     filename = ../../structure/FiberOxOB_2D_ebsd.txt
+#     pre_refine = 0
+#   []
+#     parallel_type = DISTRIBUTED
+# []
 [Mesh]
-  # Create a mesh representing the EBSD data
-  [ebsd_mesh]
-    type = EBSDMeshGenerator
-    filename = ../../structure/FiberOxOB_2D_ebsd.txt
-    pre_refine = 2
-  []
-    parallel_type = DISTRIBUTED
-[]
+  [gen]
+    type = DistributedRectilinearMeshGenerator
+    dim = 2
 
+    xmin = 0
+    xmax = 1671840 # 120 microns
+    nx = 1536
+
+    ymin = 0
+    ymax = 139320 # 120 microns
+    ny = 128
+
+    elem_type = QUAD4
+  []
+
+  uniform_refine = 0
+[]
 
 #------------------------------------------------------------------------------#
 [GlobalParams]
@@ -52,10 +69,10 @@ ev = 6.242e18 #conversion from J to EV
     type = Terminator
     expression = 'int_h_f < 1e6'
   []
-  [ebsd]
-    # Read in the EBSD data. Uses the filename given in the mesh block.
-    type = EBSDReader
-  []
+#   [ebsd]
+#     # Read in the EBSD data. Uses the filename given in the mesh block.
+#     type = EBSDReader
+#   []
 []
 
 #------------------------------------------------------------------------------#
@@ -87,7 +104,7 @@ ev = 6.242e18 #conversion from J to EV
     expression = '(T_top - T_bottom)/l_domain * y + T_bottom'
 
     symbol_names = 'T_bottom  T_top   l_domain'
-    symbol_values = '2988      3000    139455' #${fparse 30/lo}' #1551853' # 12 K over 120 microns
+    symbol_values = '1988      2000    139455' #${fparse 30/lo}' #1551853' # 12 K over 120 microns
   []
 
   [T_fiber_func]
@@ -243,21 +260,21 @@ ev = 6.242e18 #conversion from J to EV
 
 #------------------------------------------------------------------------------#
 [AuxVariables]
-  [./total_energy]
+  [total_energy]
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0
-  [../]
-  [./omega_inter]
+  []
+  [omega_inter]
     order = CONSTANT
     family = MONOMIAL
     initial_condition = 0
-  [../]
+  []
 
   [T_fiber_var]
     order = CONSTANT
     family = MONOMIAL
-    initial_condition = 3000
+    initial_condition = 2000
   []
 
   [var_00]
@@ -820,7 +837,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = rho_c
     coupled_variables = 'w_c eta_f eta_g'
 
-    expression= 'h_f*rho_c_f + h_g*rho_c_g'
+    expression= '(h_f*rho_c_f + h_g*rho_c_g)/8.76'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c)'
   []
@@ -830,7 +847,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = x_c
     coupled_variables = 'w_c eta_f eta_g'
 
-    expression= 'Va*(h_f*rho_c_f + h_g*rho_c_g)'
+    expression= 'Va*(h_f*rho_c_f + h_g*rho_c_g)/8.76'
 
     material_property_names = 'Va h_f(eta_f,eta_g) h_g(eta_f,eta_g) rho_c_f(w_c) rho_c_g(w_c)'
 
@@ -1004,10 +1021,17 @@ ev = 6.242e18 #conversion from J to EV
     type = DerivativeParsedMaterial
     property_name = K_CO
     coupled_variables = 'T'
+    # expression= 'if(T<2000,
+    # (3.80584195e-20*T^5+ -2.77866615e-16*T^4 + 7.99637154e-13*T^3+ -1.12764488e-09*T^2+  7.69820159e-07*T +-1.95630019e-04)* ${fparse ((1e6)^3 * to/(Av*lo^3))},
+    # (1.56915470e-21*T^5+ -2.28467144e-17*T^4+  1.30318867e-13*T^3+ -3.64612523e-10*T^2+  5.00773386e-07*T+ -2.68263967e-04)* ${fparse ((1e6)^3 * to/(Av*lo^3))})'
+    # expression= 'K_pre/(int_width/2) * exp(-Q/(k_Boltz*T))'
 
-    expression= 'K_pre/int_width * exp(-Q/(k_Boltz*T))'
+    expression= '(-2.39219507e-33*T^9 + 4.95623159e-29*T^8 + -4.42483623e-25*T^7 + 2.22714402e-21*T^6 + 
+    -6.93724807e-18*T^5 + 1.37965916e-14*T^4 + -1.73967001e-11*T^3 + 1.32813033e-08*T^2 + -5.49566520e-06*T + 9.32733172e-04)
+    * ${fparse ((1e6)^3 * to/(Av*lo^3))}'
 
-    material_property_names = 'int_width K_pre Q k_Boltz'
+
+    # material_property_names = 'int_width K_pre Q k_Boltz'
   []
 
   #----------------------------------------------------------------------------#
@@ -1015,8 +1039,11 @@ ev = 6.242e18 #conversion from J to EV
   [K_params]
     type = GenericConstantMaterial
 
-    prop_names  = 'K_pre                             Q               k_Boltz      K_tol'
-    prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-10' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'
+    # prop_names  = 'K_pre                             Q               k_Boltz      K_tol'
+    # prop_values = '${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01      8.6173e-5    1e-4' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'
+
+    prop_names  = 'K_pre                                            Q                                k_Boltz      K_tol'
+    prop_values = '${fparse 8.08489251e-07 *(1e6)^3*to/(Av*lo^3)}   ${fparse -1.75530415e-01 *ev/Av}  8.6173e-5    1e-4' #${fparse 1.3869e12*to/(Av*lo^3)}'#1e-4'   # ${fparse 9.46e15*to/(Av*lo^3)}    5.3772e-01  
   []
 
   #----------------------------------------------------------------------------#
@@ -1025,30 +1052,46 @@ ev = 6.242e18 #conversion from J to EV
     type = GenericConstantMaterial
 
     prop_names = 'int_width'
-    prop_values = 4644 #'${fparse 1/lo}'#4644' #'24247' # eta's width
+    prop_values = 4644 #'${fparse 1/lo}'# s4644' #'24247' # eta's width
   []
 
   #----------------------------------------------------------------------------#
-  [Ave_K_CO] # K_CO using average T in the fiber
-    type = ParsedMaterial
+  # [Ave_K_CO] # K_CO using average T in the fiber
+  #   type = ParsedMaterial
+  #   property_name = Ave_K_CO
+  #   coupled_variables = 'T_fiber_var'
+  #   # expression= 'if(T_fiber_var<2000,
+  #   # (3.80584195e-20*T_fiber_var^5+ -2.77866615e-16*T_fiber_var^4 + 7.99637154e-13*T_fiber_var^3+ -1.12764488e-09*T_fiber_var^2+  7.69820159e-07*T_fiber_var +-1.95630019e-04)* ${fparse ((1e6)^3 * to/(Av*lo^3))},
+  #   # (1.56915470e-21*T_fiber_var^5+ -2.28467144e-17*T_fiber_var^4+  1.30318867e-13*T_fiber_var^3+ -3.64612523e-10*T_fiber_var^2+  5.00773386e-07*T_fiber_var+ -2.68263967e-04)* ${fparse ((1e6)^3 * to/(Av*lo^3))})'
+
+  #   expression= '(-2.39219507e-33*T_fiber_var^9 + 4.95623159e-29*T_fiber_var^8 + -4.42483623e-25*T_fiber_var^7 + 2.22714402e-21*T_fiber_var^6 + 
+  #   -6.93724807e-18*T_fiber_var^5 + 1.37965916e-14*T_fiber_var^4 + -1.73967001e-11*T_fiber_var^3 + 1.32813033e-08*T_fiber_var^2 + -5.49566520e-06*T_fiber_var + 9.32733172e-04)
+  #   * ${fparse ((1e6)^3 * to/(Av*lo^3))}'
+    
+  #   # expression= 'K_pre/(int_width/2) * exp(-Q/(k_Boltz*T_fiber_var))'
+
+  #   # material_property_names = 'int_width K_pre Q k_Boltz'
+  # []
+  [Ave_K_CO]
+    type = DerivativeParsedMaterial
     property_name = Ave_K_CO
     coupled_variables = 'T_fiber_var'
 
-    expression= 'K_pre/(int_width/2) * exp(-Q/(k_Boltz*T_fiber_var))'
-
-    material_property_names = 'int_width K_pre Q k_Boltz'
+    expression= '(-2.39219507e-33*T_fiber_var^9 + 4.95623159e-29*T_fiber_var^8 + -4.42483623e-25*T_fiber_var^7 + 2.22714402e-21*T_fiber_var^6 + 
+    -6.93724807e-18*T_fiber_var^5 + 1.37965916e-14*T_fiber_var^4 + -1.73967001e-11*T_fiber_var^3 + 1.32813033e-08*T_fiber_var^2 + -5.49566520e-06*T_fiber_var + 9.32733172e-04)
+    * ${fparse ((1e6)^3 * to/(Av*lo^3))}'
   []
-
   #----------------------------------------------------------------------------#
   # Phase mobility
   [phase_mobility]
     type = DerivativeParsedMaterial
     property_name = L
-
+    # expression = 1.2234776417570828626205511860250129198e-6
     expression= '4/3 * 1/int_width * alpha * Ave_K_CO'
 
     constant_names        = 'alpha'
-    constant_expressions  = '${fparse 9.6114e3*eo*(1e-4)/(lo)}' #17415002.1524e-0500'  #((lo/(2.1524e-04))^3)
+    constant_expressions = 91900
+    # constant_expressions  = '${fparse 9.6114e3*eo*(1)/(lo)}'  # 17415002.1524e-0500'  #((lo/(2.1524e-04))^3)
 
     material_property_names = 'int_width Ave_K_CO'
   []
@@ -1072,7 +1115,7 @@ ev = 6.242e18 #conversion from J to EV
   [params]
     type = GenericConstantMaterial
     prop_names = 'To     k_b        			 Va'
-    prop_values = '3000  ${fparse 8.6173e-5/eo}  ${fparse 9.97e-12/lo^3}'
+    prop_values = '2000  ${fparse 8.6173e-5/eo}  ${fparse 9.97e-12/lo^3}'
   []
 
   [formation_energies]
@@ -1104,8 +1147,10 @@ ev = 6.242e18 #conversion from J to EV
     type = DerivativeParsedMaterial
     property_name = D_c
     coupled_variables = 'eta_f eta_g'
+    expression= '(h_f*${fparse 1.07e-12*1e8*to/lo^2})*1e20 + (h_g*${fparse 1*1e8*to/lo^2})'
 
-    expression= 'h_f*${fparse 1.07e-12*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'
+
+    # expression= 'h_f*${fparse 1.07e-12*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1225,7 +1270,15 @@ ev = 6.242e18 #conversion from J to EV
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
-  
+  #------------------------------------------------------------------------------#
+  # Surface Area
+  [Surface]
+    type = ParsedMaterial
+    property_name = Surface_Area
+    coupled_variables = 'eta_f eta_g'
+    expression = 'eta_f * eta_g'
+    outputs = 'exodus'
+  []
   #------------------------------------------------------------------------------#
   # Conservation check
   [sum_eta]
@@ -1293,14 +1346,14 @@ ev = 6.242e18 #conversion from J to EV
     type = DirichletBC
     variable = 'T'
     boundary = 'top'
-    value = '3000'
+    value = '2000'
   []
 
   [fixed_T_bottom]
     type = DirichletBC
     variable = 'T'
     boundary = 'bottom'
-    value = '2988'
+    value = '1988'
   []
 []
 
@@ -1337,14 +1390,14 @@ ev = 6.242e18 #conversion from J to EV
   l_max_its = 30
   l_tol = 1.0e-4
 
-  steady_state_detection = true
-  steady_state_tolerance = 1e-15
-  steady_state_start_time = 1e5
+  # steady_state_detection = true
+  # steady_state_tolerance = 1e-10
+  # steady_state_start_time = 1e5
 
   start_time = 0.0
 
   dtmin = 1e-6
-  # dtmax = 1e10
+  dtmax = 1e10
 
   #verbose = true
 
@@ -1358,7 +1411,8 @@ ev = 6.242e18 #conversion from J to EV
 
   [TimeStepper]
     type = IterationAdaptiveDT
-    dt = 1
+    # dt = 262144
+    dt = 1024
 
     # growth_factor = 1.2
     # cutback_factor = 0.83333
@@ -1602,6 +1656,13 @@ ev = 6.242e18 #conversion from J to EV
     mem_units = megabytes
     value_type = max_process
   []
+  # [area]
+  #   type = LevelSetVolume
+  #   threshold = 0.5
+  #   variable = phi
+  #   location = outside
+  #   execute_on = 'initial timestep_end'
+  # []
 []
 
 #------------------------------------------------------------------------------#
@@ -1617,7 +1678,7 @@ ev = 6.242e18 #conversion from J to EV
   [exodus]
     type = Exodus
     append_date = True
-    time_step_interval = 3
+    # time_step_interval = 3
   []
 
   [csv]
