@@ -13,33 +13,33 @@ ev = 6.242e18 #conversion from J to EV
 #------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------------------#
-# [Mesh]
-#   # Create a mesh representing the EBSD data
-#   [ebsd_mesh]
-#     type = EBSDMeshGenerator
-#     filename = ../../structure/FiberOxOB_2D_ebsd.txt
-#     pre_refine = 0
-#   []
-#     parallel_type = DISTRIBUTED
-# []
 [Mesh]
-  [gen]
-    type = DistributedRectilinearMeshGenerator
-    dim = 2
-
-    xmin = 0
-    xmax = 1671840 # 120 microns
-    nx = 1536
-
-    ymin = 0
-    ymax = 139320 # 120 microns
-    ny = 128
-
-    elem_type = QUAD4
+  # Create a mesh representing the EBSD data
+  [ebsd_mesh]
+    type = EBSDMeshGenerator
+    filename = ../../structure/ExampleFiber_2D_ebsd.txt
+    pre_refine = 0
   []
-
-  uniform_refine = 0
+    parallel_type = DISTRIBUTED
 []
+# [Mesh]
+#   [gen]
+#     type = DistributedRectilinearMeshGenerator
+#     dim = 2
+
+#     xmin = 0
+#     xmax = 1671840 # 120 microns
+#     nx = 1536
+
+#     ymin = 0
+#     ymax = 139320 # 120 microns
+#     ny = 128
+
+#     elem_type = QUAD4
+#   []
+
+#   uniform_refine = 0
+# []
 
 #------------------------------------------------------------------------------#
 [GlobalParams]
@@ -69,10 +69,10 @@ ev = 6.242e18 #conversion from J to EV
     type = Terminator
     expression = 'int_h_f < 1e6'
   []
-#   [ebsd]
-#     # Read in the EBSD data. Uses the filename given in the mesh block.
-#     type = EBSDReader
-#   []
+  [ebsd]
+    # Read in the EBSD data. Uses the filename given in the mesh block.
+    type = EBSDReader
+  []
 []
 
 #------------------------------------------------------------------------------#
@@ -1073,7 +1073,7 @@ ev = 6.242e18 #conversion from J to EV
   #   # material_property_names = 'int_width K_pre Q k_Boltz'
   # []
   [Ave_K_CO]
-    type = DerivativeParsedMaterial
+    type = ParsedMaterial
     property_name = Ave_K_CO
     coupled_variables = 'T_fiber_var'
 

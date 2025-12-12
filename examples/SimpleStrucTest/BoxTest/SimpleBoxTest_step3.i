@@ -1775,7 +1775,7 @@ ev = 6.242e18 #conversion from J to EV
 
 #------------------------------------------------------------------------------#
 [Outputs]
-  file_base = ./boxresults/SimpleBoxTest_step3
+  file_base = ./results/SimpleBoxTest_step3
 
   [console]
     type = Console

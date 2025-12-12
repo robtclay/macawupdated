@@ -17,7 +17,7 @@ ev = 6.242e18 #conversion from J to EV
   # Create a mesh representing the EBSD data
   [ebsd_mesh]
     type = EBSDMeshGenerator
-    filename = ../../structure/FiberOxOB_2D_ebsd.txt
+    filename = ../../structure/ExampleFiber_2D_ebsd.txt
     pre_refine = 0
   []
     parallel_type = DISTRIBUTED
