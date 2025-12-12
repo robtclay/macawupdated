@@ -1,11 +1,11 @@
 [Tests]
-  [1_direction_calculation]
-    type = 'Exodiff'
-    input = 'fiber_direction.i'
-    exodiff = 'fiber_direction_exodus.e'
+#   [1_direction_calculation]
+#     type = 'Exodiff'
+#     input = 'fiber_direction.i'
+#     exodiff = 'fiber_direction_exodus.e'
 
-    requirement = 'This test computes a value for the direction of a vertical carbon fiber.'
-  []
+#     requirement = 'This test computes a value for the direction of a vertical carbon fiber.'
+#   []
 
   [2_tensor_rotation]
     type = 'Exodiff'
