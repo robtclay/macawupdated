@@ -485,9 +485,9 @@ ev = 6.242e18 #conversion from J to EV
   # In step 1, the value with the longitudinal thermal conductivity is ii
   [thcond_f]
     type = ConstantAnisotropicMobility
-    tensor = '${fparse 50*lo*ev*to/(1e6*eo)}    0                                   0
-              0                                 ${fparse 0.5*lo*ev*to/(1e6*eo)}     0
-              0                                 0                                   ${fparse 0.5*lo*ev*to/(1e6*eo)}'
+    tensor = '${fparse 28.5*lo*ev*to/(1e6*eo)}    0                                   0
+              0                                 ${fparse 7.98*lo*ev*to/(1e6*eo)}     0
+              0                                 0                                   ${fparse 7.98*lo*ev*to/(1e6*eo)}'
     # tensor = '7.4576e+06      0             0
     #           0               7.4576e+04    0
     #           0               0             7.4576e+04'

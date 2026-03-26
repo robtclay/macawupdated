@@ -596,7 +596,7 @@ ev = 6.242e18 #conversion from J to EV
 
     constant_names = 'dH'
 
-    constant_expressions = ${fparse 100*1000*ev/(Av*eo)} #'2.6575e-01' # = 100 kJ/mol
+    constant_expressions = ${fparse -46.403*1000*ev/(Av*eo)} # = -46.403 kJ/mol
 
     material_property_names = 'K_CO(T) rho_c(w_c,eta_f,eta_g) rho_o(w_o,eta_f,eta_g) K_tol'
   []
@@ -902,8 +902,8 @@ ev = 6.242e18 #conversion from J to EV
     property_name = K_CO
     coupled_variables = 'T'
 
-    expression= '(-2.39219507e-33*T^9 + 4.95623159e-29*T^8 + -4.42483623e-25*T^7 + 2.22714402e-21*T^6 + 
-    -6.93724807e-18*T^5 + 1.37965916e-14*T^4 + -1.73967001e-11*T^3 + 1.32813033e-08*T^2 + -5.49566520e-06*T + 9.32733172e-04)
+    expression = '(4.07662047e-31*T^9 + -5.91234279e-27*T^8 +  3.74995232e-23*T^7 + -1.36369972e-19*T^6 + 3.13020922e-16*T^5
+     + -4.69875809e-13*T^4 +  4.60981450e-10*T^3 + -2.85008951e-07*T^2 + 1.00842537e-04*T -1.55725465e-02)
     * ${fparse ((1e6)^3 * to/(Av*lo^3))}'
 
     # expression= 'K_pre/int_width * exp(-Q/(k_Boltz*T))'
@@ -941,12 +941,12 @@ ev = 6.242e18 #conversion from J to EV
   #   material_property_names = 'int_width K_pre Q k_Boltz'
   # []
   [Ave_K_CO]
-    type = DerivativeParsedMaterial
+    type = ParsedMaterial
     property_name = Ave_K_CO
     coupled_variables = 'T_fiber_var'
 
-    expression= '(-2.39219507e-33*T_fiber_var^9 + 4.95623159e-29*T_fiber_var^8 + -4.42483623e-25*T_fiber_var^7 + 2.22714402e-21*T_fiber_var^6 + 
-    -6.93724807e-18*T_fiber_var^5 + 1.37965916e-14*T_fiber_var^4 + -1.73967001e-11*T_fiber_var^3 + 1.32813033e-08*T_fiber_var^2 + -5.49566520e-06*T_fiber_var + 9.32733172e-04)
+    expression = '(4.07662047e-31*T_fiber_var^9 + -5.91234279e-27*T_fiber_var^8 +  3.74995232e-23*T_fiber_var^7 + -1.36369972e-19*T_fiber_var^6 + 3.13020922e-16*T_fiber_var^5
+     + -4.69875809e-13*T_fiber_var^4 +  4.60981450e-10*T_fiber_var^3 + -2.85008951e-07*T_fiber_var^2 + 1.00842537e-04*T_fiber_var -1.55725465e-02)
     * ${fparse ((1e6)^3 * to/(Av*lo^3))}'
   []
 
@@ -959,7 +959,7 @@ ev = 6.242e18 #conversion from J to EV
     expression= '4/3 * 1/int_width * alpha * Ave_K_CO'
 
     constant_names        = 'alpha'
-    constant_expressions = 9190
+    constant_expressions = 9190 #91900
     # constant_expressions  = '${fparse 9.6114e3*eo*(1e-4)/(lo)}'  #'174150000'
 
     material_property_names = 'int_width Ave_K_CO'
@@ -971,7 +971,7 @@ ev = 6.242e18 #conversion from J to EV
     type = GrandPotentialInterface
     gamma_names = 'gamma_fg'
 
-    sigma = '${fparse 0.2*ev/(1e6)^2*(lo^2)/eo}'  # = 0.2 J/m2
+    sigma = '${fparse 20*ev/(1e6)^2*(lo^2)/eo}'  # = 20 J/m2
 
     kappa_name = kappa
     mu_name = mu
@@ -1027,7 +1027,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = D_o
     coupled_variables = 'eta_f eta_g'
 
-    expression= 'h_f*${fparse 3e-3*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}'
+    expression= 'h_f*${fparse 2e-3*1e8*to/lo^2} + h_g*${fparse 17.69*1e8*to/lo^2}'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1037,7 +1037,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = D_co
     coupled_variables = 'eta_f eta_g'
 
-    expression= 'h_f*${fparse 3e-3*1e8*to/lo^2} + h_g*${fparse 1*1e8*to/lo^2}' 
+    expression= 'h_f*${fparse 2e-3*1e8*to/lo^2} + h_g*${fparse 17.69*1e8*to/lo^2}' 
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1093,9 +1093,9 @@ ev = 6.242e18 #conversion from J to EV
 
   [thcond_g]
     type = ConstantAnisotropicMobility
-    tensor = '${fparse 0.18*lo*ev*to/(1e6*eo)}        0                                     0
-              0                                       ${fparse 0.18*lo*ev*to/(1e6*eo)}      0
-              0                                       0                                     ${fparse 0.18*lo*ev*to/(1e6*eo)} '
+    tensor = '${fparse 0.12*lo*ev*to/(1e6*eo)}        0                                     0
+              0                                       ${fparse 0.12*lo*ev*to/(1e6*eo)}      0
+              0                                       0                                     ${fparse 0.12*lo*ev*to/(1e6*eo)} '
 
     # tensor = '2.6501e+04      0             0
     #           0               2.6501e+04    0
@@ -1121,7 +1121,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = specific_heat
     coupled_variables = 'eta_f eta_g'
 
-    expression = 'h_f *${fparse 2.5*ev/eo} + h_g * ${fparse 1.25*ev/eo}'
+    expression = 'h_f *${fparse 2.1*ev/eo} + h_g * ${fparse 1.25*ev/eo}'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1133,7 +1133,7 @@ ev = 6.242e18 #conversion from J to EV
     property_name = density
     coupled_variables = 'eta_f eta_g'
 
-    expression = 'h_f * ${fparse (2/1e12)*lo^3} + h_g * ${fparse (1.3e-4/1e12)*lo^3}'
+    expression = 'h_f * ${fparse (1.4/1e12)*lo^3} + h_g * ${fparse (1.3e-4/1e12)*lo^3}'
 
     material_property_names = 'h_f(eta_f,eta_g) h_g(eta_f,eta_g)'
   []
@@ -1201,14 +1201,14 @@ ev = 6.242e18 #conversion from J to EV
   [fixed_T_top]
     type = DirichletBC
     variable = 'T'
-    boundary = 'top'
+    boundary = 'front'
     value = '2000'
   []
 
   [fixed_T_bottom]
     type = DirichletBC
     variable = 'T'
-    boundary = 'bottom'
+    boundary = 'back'
     value = '1988'
   []
 []
@@ -1361,7 +1361,7 @@ ev = 6.242e18 #conversion from J to EV
   start_time = 0.0
 
   dtmin = 1e-6
-  dtmax = 1e10
+  dtmax = 4096
 
   #verbose = true
 
@@ -1634,7 +1634,8 @@ ev = 6.242e18 #conversion from J to EV
   file_base = ./results/step2_multi_out
   [check]
     type = Checkpoint
-    num_files = 4
+    num_files = 3
+    interval = 3
   []
 
   [console]

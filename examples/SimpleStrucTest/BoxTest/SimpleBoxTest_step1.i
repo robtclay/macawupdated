@@ -389,19 +389,6 @@ ev = 6.242e18 #conversion from J to EV
     expression = '1e-5'
   []
 
-  [reactivity_CO]
-    type = DerivativeParsedMaterial
-    property_name = K_CO
-
-    # expression = '(-2.67571265e-17*2000^4 + 1.84215649e-13*2000^3 + -4.60758057e-10*2000^2 + 4.90363538e-07*2000 + -1.74420786e-04)* ${fparse ((1e6)^3 * to/(Av*lo^3))}'
-
-    expression = '4.636568011043739e-7'
-    # expression= '(-2.39219507e-33*2000^9 + 4.95623159e-29*2000^8 + -4.42483623e-25*2000^7 + 2.22714402e-21*2000^6 + 
-    # -6.93724807e-18*2000^5 + 1.37965916e-14*2000^4 + -1.73967001e-11*2000^3 + 1.32813033e-08*2000^2 + -5.49566520e-06*2000 + 9.32733172e-04)'
-    #* ${fparse ((1e6)^3 * to/(Av*lo^3))}'
-    outputs = 'exodus'
-  []
-
   #----------------------------------------------------------------------------#
   [phase_mobility]
     type = GenericConstantMaterial
@@ -498,9 +485,9 @@ ev = 6.242e18 #conversion from J to EV
   # In step 1, the value with the longitudinal thermal conductivity is ii
   [thcond_f]
     type = ConstantAnisotropicMobility
-    tensor = '${fparse 50*lo*ev*to/(1e6*eo)}    0                                   0
-              0                                 ${fparse 0.5*lo*ev*to/(1e6*eo)}     0
-              0                                 0                                   ${fparse 0.5*lo*ev*to/(1e6*eo)}'
+    tensor = '${fparse 28.5*lo*ev*to/(1e6*eo)}    0                                   0
+              0                                 ${fparse 7.98*lo*ev*to/(1e6*eo)}     0
+              0                                 0                                   ${fparse 7.98*lo*ev*to/(1e6*eo)}'
 
     # tensor = '7.4576e+06      0             0
     #           0               7.4576e+04    0

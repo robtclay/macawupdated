@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --job-name=3d_fiber_ox
-#SBATCH --nodes=24
-#SBATCH --ntasks-per-node=32
+#SBATCH --nodes=32
+#SBATCH --ntasks-per-node=48
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=8GB
 #SBATCH --distribution=cyclic:cyclic
