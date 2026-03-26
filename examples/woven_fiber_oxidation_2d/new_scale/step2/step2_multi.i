@@ -1676,7 +1676,7 @@ ev = 6.242e18 #conversion from J to EV
   []
 
   [exodus]
-    type = Nemesis
+    type = Exodus
     append_date = True
     # time_step_interval = 3
   []
